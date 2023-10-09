@@ -2,6 +2,39 @@
 
 #[ink::contract]
 mod daosign_ink {
+    // use ink::prelude::string::String;
+
+    /// The ProofsMetadata error types
+    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub enum Error {
+        EmptyInputParams, // Input params cannot be empty
+        MetadataExists,   // Metadata already exists
+        NoMetadata,       // Metadata does not exist
+    }
+
+    #[derive(scale::Encode, scale::Decode)]
+    pub enum ProofTypes {
+        ProofOfAuthority,
+        ProofOfSignature,
+        ProofOfAgreement,
+    }
+
+    /// ProofsMetadata result type
+    pub type Result<T> = core::result::Result<T, Error>;
+
+    /// Trait for ProofsMetadata
+    #[ink::trait_definition]
+    pub trait ProofsMetadata {
+        #[ink(message)]
+        fn get_metadata_num_of_versions(&self, _type: ProofTypes) -> u128;
+
+        #[ink(message)]
+        fn add_metadata(&mut self, _type: ProofTypes, _version: String, _metadata: String) -> Result<()>;
+
+        #[ink(message)]
+        fn force_update_metadata(&mut self, _type: ProofTypes, _version: String, _metadata: String) -> Result<()>;
+    }
 
     /// Defines the storage of your contract.
     /// Add new fields to the below struct in order
@@ -9,7 +42,7 @@ mod daosign_ink {
     #[ink(storage)]
     pub struct DaosignInk {
         /// Stores a single `bool` value on the storage.
-        value: bool,
+        value: bool, 
     }
 
     impl DaosignInk {
