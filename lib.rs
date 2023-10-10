@@ -1,19 +1,26 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
-mod daosign_ink {
-    // use ink::prelude::string::String;
+mod proofs_metadata {
+    use ink::prelude::string::String;
+    use ink::prelude::vec::Vec;
+    use ink::storage::Mapping;
+    use scale::{Decode, Encode};
 
     /// The ProofsMetadata error types
-    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+    #[derive(Debug, Encode, Decode, PartialEq, Eq)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-    pub enum Error {
+    pub enum ProofsMetadataError {
         EmptyInputParams, // Input params cannot be empty
         MetadataExists,   // Metadata already exists
         NoMetadata,       // Metadata does not exist
     }
 
-    #[derive(scale::Encode, scale::Decode)]
+    #[derive(Debug, Encode, Decode, Clone)]
+    #[cfg_attr(
+        feature = "std",
+        derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
+    )]
     pub enum ProofTypes {
         ProofOfAuthority,
         ProofOfSignature,
@@ -21,13 +28,28 @@ mod daosign_ink {
     }
 
     /// ProofsMetadata result type
-    pub type Result<T> = core::result::Result<T, Error>;
+    pub type Result<T> = core::result::Result<T, ProofsMetadataError>;
+
+    #[ink(storage)]
+    #[derive(Default)]
+    pub struct ProofsMetadata {
+        // proof type -> version -> metadata
+        proofs_metadata: Mapping<(ProofTypes, String), String>,
+        // proof type -> history of versions
+        metadata_versions: Mapping<ProofTypes, Vec<String>>,
+    }
 
     /// Trait for ProofsMetadata
     #[ink::trait_definition]
-    pub trait ProofsMetadata {
+    pub trait ProofsMetadataTrait {
         #[ink(message)]
-        fn get_metadata_num_of_versions(&self, _type: ProofTypes) -> u128;
+        fn proofs_metadata(&self, _type: ProofTypes, _version: String) -> String;
+
+        #[ink(message)]
+        fn metadata_versions(&self, _type: ProofTypes, _index: u32) -> String;
+
+        #[ink(message)]
+        fn get_metadata_num_of_versions(&self, _type: ProofTypes) -> u32;
 
         #[ink(message)]
         fn add_metadata(&mut self, _type: ProofTypes, _version: String, _metadata: String) -> Result<()>;
@@ -36,44 +58,122 @@ mod daosign_ink {
         fn force_update_metadata(&mut self, _type: ProofTypes, _version: String, _metadata: String) -> Result<()>;
     }
 
+    // Events
+    #[ink(event)]
+    pub struct MetadataAdded {
+        #[ink(topic)]
+        proof_type: ProofTypes,
+        #[ink(topic)]
+        version: String,
+        metadata: String,
+    }
+
+    impl ProofsMetadata {
+        #[ink(constructor)]
+        pub fn new() -> Self {
+            Self {
+                proofs_metadata: Default::default(),
+                metadata_versions: Default::default(),
+            }
+        }
+    }
+
+    impl ProofsMetadataTrait for ProofsMetadata {
+        #[ink(message)]
+        fn proofs_metadata(&self, _type: ProofTypes, _version: String) -> String {
+            self.proofs_metadata.get((_type, _version)).unwrap_or_default()
+        }
+
+        #[ink(message)]
+        fn metadata_versions(&self, _type: ProofTypes, _index: u32) -> String {
+            self.metadata_versions.get(_type).unwrap_or_default()[_index as usize].clone()
+        }
+
+        #[ink(message)]
+        fn get_metadata_num_of_versions(&self, _type: ProofTypes) -> u32 {
+            self.metadata_versions.get(_type).unwrap_or_default().len() as u32
+        }
+
+        #[ink(message)]
+        fn add_metadata(&mut self, _type: ProofTypes, _version: String, _metadata: String) -> Result<()> {
+            if _version.len() == 0 || _metadata.len() == 0 {
+                return Err(ProofsMetadataError::EmptyInputParams)
+            }
+            if self.proofs_metadata.get((_type.clone(), _version.clone())).unwrap_or_default().len() > 0 {
+                return Err(ProofsMetadataError::MetadataExists)
+            }
+
+            self.proofs_metadata.insert((_type.clone(), _version.clone()), &_metadata.clone());
+            self.metadata_versions.get(_type.clone()).unwrap_or_default().push(_version.clone());
+            
+            Self::env().emit_event(MetadataAdded {
+                proof_type: _type.clone(),
+                version: _version.clone(),
+                metadata: _metadata.clone(),
+            });
+
+            Ok(())
+        }
+
+        #[ink(message)]
+        fn force_update_metadata(&mut self, _type: ProofTypes, _version: String, _metadata: String) -> Result<()> {
+            if _version.len() == 0 || _metadata.len() == 0 {
+                return Err(ProofsMetadataError::EmptyInputParams)
+            }
+            if self.proofs_metadata.get((_type.clone(), _version.clone())).unwrap_or_default().len() == 0 {
+                return Err(ProofsMetadataError::NoMetadata)
+            }
+
+            self.proofs_metadata.insert((_type.clone(), _version.clone()), &_metadata.clone());
+
+            Self::env().emit_event(MetadataAdded {
+                proof_type: _type.clone(),
+                version: _version.clone(),
+                metadata: _metadata.clone(),
+            });
+
+            Ok(())
+        }
+    }
+
     /// Defines the storage of your contract.
     /// Add new fields to the below struct in order
     /// to add new static storage fields to your contract.
-    #[ink(storage)]
-    pub struct DaosignInk {
-        /// Stores a single `bool` value on the storage.
-        value: bool, 
-    }
+    // #[ink(storage)]
+    // pub struct DaosignInk {
+    //     /// Stores a single `bool` value on the storage.
+    //     value: bool,
+    // }
 
-    impl DaosignInk {
-        /// Constructor that initializes the `bool` value to the given `init_value`.
-        #[ink(constructor)]
-        pub fn new(init_value: bool) -> Self {
-            Self { value: init_value }
-        }
+    // impl DaosignInk {
+    //     /// Constructor that initializes the `bool` value to the given `init_value`.
+    //     #[ink(constructor)]
+    //     pub fn new(init_value: bool) -> Self {
+    //         Self { value: init_value }
+    //     }
 
-        /// Constructor that initializes the `bool` value to `false`.
-        ///
-        /// Constructors can delegate to other constructors.
-        #[ink(constructor)]
-        pub fn default() -> Self {
-            Self::new(Default::default())
-        }
+    //     /// Constructor that initializes the `bool` value to `false`.
+    //     ///
+    //     /// Constructors can delegate to other constructors.
+    //     #[ink(constructor)]
+    //     pub fn default() -> Self {
+    //         Self::new(Default::default())
+    //     }
 
-        /// A message that can be called on instantiated contracts.
-        /// This one flips the value of the stored `bool` from `true`
-        /// to `false` and vice versa.
-        #[ink(message)]
-        pub fn flip(&mut self) {
-            self.value = !self.value;
-        }
+    //     /// A message that can be called on instantiated contracts.
+    //     /// This one flips the value of the stored `bool` from `true`
+    //     /// to `false` and vice versa.
+    //     #[ink(message)]
+    //     pub fn flip(&mut self) {
+    //         self.value = !self.value;
+    //     }
 
-        /// Simply returns the current value of our `bool`.
-        #[ink(message)]
-        pub fn get(&self) -> bool {
-            self.value
-        }
-    }
+    //     /// Simply returns the current value of our `bool`.
+    //     #[ink(message)]
+    //     pub fn get(&self) -> bool {
+    //         self.value
+    //     }
+    // }
 
     /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
     /// module and test functions are marked with a `#[test]` attribute.
@@ -99,7 +199,6 @@ mod daosign_ink {
             assert_eq!(daosign_ink.get(), true);
         }
     }
-
 
     /// This is how you'd write end-to-end (E2E) or integration tests for ink! contracts.
     ///
