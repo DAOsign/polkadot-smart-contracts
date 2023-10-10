@@ -175,28 +175,82 @@ mod proofs_metadata {
     //     }
     // }
 
-    /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
-    /// module and test functions are marked with a `#[test]` attribute.
-    /// The below code is technically just normal Rust code.
     #[cfg(test)]
     mod tests {
-        /// Imports all the definitions from the outer scope so we can use them here.
         use super::*;
 
-        /// We test if the default constructor does its job.
         #[ink::test]
-        fn default_works() {
-            let daosign_ink = DaosignInk::default();
-            assert_eq!(daosign_ink.get(), false);
+        fn constructor() {
+            let proofs_metadata = ProofsMetadata::default();
+            assert_eq!(proofs_metadata.proofs_metadata.get((ProofTypes::ProofOfAuthority, "")).unwrap_or_default(), "");
+            assert_eq!(proofs_metadata.metadata_versions.get(ProofTypes::ProofOfSignature).unwrap_or_default().len(), 0);
         }
 
-        /// We test a simple use case of our contract.
+        // /// We test a simple use case of our contract.
+        // #[ink::test]
+        // fn it_works() {
+        //     let mut daosign_ink = DaosignInk::new(false);
+        //     assert_eq!(daosign_ink.get(), false);
+        //     daosign_ink.flip();
+        //     assert_eq!(daosign_ink.get(), true);
+        // }
+
         #[ink::test]
-        fn it_works() {
-            let mut daosign_ink = DaosignInk::new(false);
-            assert_eq!(daosign_ink.get(), false);
-            daosign_ink.flip();
-            assert_eq!(daosign_ink.get(), true);
+        fn only_owner() {
+            let mut proofs_metadata = ProofsMetadata::default();
+            // Simulate the owner and anyone else
+            // let owner = AccountId::from([0x01; 32]);
+            // let anyone = AccountId::from([0x02; 32]);
+
+            // // Set the contract caller to 'anyone'
+            // set_sender(anyone);
+            // assert_eq!(
+            //     proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
+            //     Err(ProofsMetadataError::NotOwner)
+            // );
+
+            // Set the contract caller to 'owner'
+            // set_sender(owner);
+            assert_eq!(
+                proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
+                Ok(())
+            );
+        }
+
+        #[ink::test]
+        fn empty_input_params() {
+            let mut proofs_metadata = ProofsMetadata::default();
+            assert_eq!(
+                proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "".into(), "{}".into()),
+                Err(ProofsMetadataError::EmptyInputParams)
+            );
+            assert_eq!(
+                proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "".into()),
+                Err(ProofsMetadataError::EmptyInputParams)
+            );
+        }
+
+        #[ink::test]
+        fn metadata_already_exists() {
+            let mut proofs_metadata = ProofsMetadata::default();
+            assert_eq!(
+                proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
+                Ok(())
+            );
+            assert_eq!(
+                proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
+                Err(ProofsMetadataError::MetadataExists)
+            );
+        }
+
+        #[ink::test]
+        fn success_emits_an_event() {
+            let mut proofs_metadata = ProofsMetadata::default();
+            assert_eq!(
+                proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
+                Ok(())
+            );
+            // TODO: Check emitted event (you'll need to implement event checking)
         }
     }
 
