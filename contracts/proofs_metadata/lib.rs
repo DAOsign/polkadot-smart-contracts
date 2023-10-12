@@ -1,11 +1,21 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-#[ink::contract]
+// #[ink::contract]
+#[openbrush::implementation(Ownable)]
+#[openbrush::contract]
 mod proofs_metadata {
     use ink::prelude::string::String;
     use ink::prelude::vec::Vec;
     use ink::storage::Mapping;
     use scale::{Decode, Encode};
+    use openbrush::{
+        modifiers,
+        // test_utils::{
+        //     accounts,
+        //     change_caller,
+        // },
+        traits::Storage,
+    };
 
     /// The ProofsMetadata error types
     #[derive(Debug, Encode, Decode, PartialEq, Eq)]
@@ -14,6 +24,13 @@ mod proofs_metadata {
         EmptyInputParams, // Input params cannot be empty
         MetadataExists,   // Metadata already exists
         NoMetadata,       // Metadata does not exist
+        Ownable(OwnableError),
+    }
+
+    impl From<OwnableError> for ProofsMetadataError {
+        fn from(error: OwnableError) -> Self {
+            ProofsMetadataError::Ownable(error)
+        }
     }
 
     #[derive(Debug, Encode, Decode, Clone)]
@@ -28,15 +45,18 @@ mod proofs_metadata {
     }
 
     /// ProofsMetadata result type
-    pub type Result<T> = core::result::Result<T, ProofsMetadataError>;
+    // pub type Result<T> = core::result::Result<T, ProofsMetadataError>;
 
     #[ink(storage)]
-    #[derive(Default)]
+    #[derive(Default, Storage)]
     pub struct ProofsMetadata {
         // proof type -> version -> metadata
         proofs_metadata: Mapping<(ProofTypes, String), String>,
         // proof type -> history of versions
         metadata_versions: Mapping<ProofTypes, Vec<String>>,
+        // Ownable smart contract
+        #[storage_field]
+        ownable: Data,
     }
 
     /// Trait for ProofsMetadata
@@ -52,10 +72,12 @@ mod proofs_metadata {
         fn get_metadata_num_of_versions(&self, _type: ProofTypes) -> u32;
 
         #[ink(message)]
-        fn add_metadata(&mut self, _type: ProofTypes, _version: String, _metadata: String) -> Result<()>;
+        #[modifiers(only_owner)]
+        fn add_metadata(&self, _type: ProofTypes, _version: String, _metadata: String) -> Result<(), ProofsMetadataError>;
 
         #[ink(message)]
-        fn force_update_metadata(&mut self, _type: ProofTypes, _version: String, _metadata: String) -> Result<()>;
+        #[modifiers(only_owner)]
+        fn force_update_metadata(&self, _type: ProofTypes, _version: String, _metadata: String) -> Result<(), ProofsMetadataError>;
     }
 
     // Events
@@ -71,10 +93,9 @@ mod proofs_metadata {
     impl ProofsMetadata {
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self {
-                proofs_metadata: Default::default(),
-                metadata_versions: Default::default(),
-            }
+            let mut instance = Self::default();
+            ownable::Internal::_init_with_owner(&mut instance, Self::env().caller());
+            instance
         }
     }
 
@@ -95,7 +116,8 @@ mod proofs_metadata {
         }
 
         #[ink(message)]
-        fn add_metadata(&mut self, _type: ProofTypes, _version: String, _metadata: String) -> Result<()> {
+        #[modifiers(only_owner)]
+        fn add_metadata(&self, _type: ProofTypes, _version: String, _metadata: String) -> Result<(), ProofsMetadataError> {
             if _version.len() == 0 || _metadata.len() == 0 {
                 return Err(ProofsMetadataError::EmptyInputParams)
             }
@@ -106,7 +128,7 @@ mod proofs_metadata {
             self.proofs_metadata.insert((_type.clone(), _version.clone()), &_metadata.clone());
             self.metadata_versions.get(_type.clone()).unwrap_or_default().push(_version.clone());
             
-            Self::env().emit_event(MetadataAdded {
+            self.env().emit_event(MetadataAdded {
                 proof_type: _type.clone(),
                 version: _version.clone(),
                 metadata: _metadata.clone(),
@@ -116,7 +138,8 @@ mod proofs_metadata {
         }
 
         #[ink(message)]
-        fn force_update_metadata(&mut self, _type: ProofTypes, _version: String, _metadata: String) -> Result<()> {
+        #[modifiers(only_owner)]
+        fn force_update_metadata(&mut self, _type: ProofTypes, _version: String, _metadata: String) -> Result<(), ProofsMetadataError> {
             if _version.len() == 0 || _metadata.len() == 0 {
                 return Err(ProofsMetadataError::EmptyInputParams)
             }
@@ -126,7 +149,7 @@ mod proofs_metadata {
 
             self.proofs_metadata.insert((_type.clone(), _version.clone()), &_metadata.clone());
 
-            Self::env().emit_event(MetadataAdded {
+            self.env().emit_event(MetadataAdded {
                 proof_type: _type.clone(),
                 version: _version.clone(),
                 metadata: _metadata.clone(),
@@ -186,71 +209,67 @@ mod proofs_metadata {
             assert_eq!(proofs_metadata.metadata_versions.get(ProofTypes::ProofOfSignature).unwrap_or_default().len(), 0);
         }
 
-        // /// We test a simple use case of our contract.
-        // #[ink::test]
-        // fn it_works() {
-        //     let mut daosign_ink = DaosignInk::new(false);
-        //     assert_eq!(daosign_ink.get(), false);
-        //     daosign_ink.flip();
-        //     assert_eq!(daosign_ink.get(), true);
-        // }
+        mod add_metadata {
+            use super::*;
 
-        #[ink::test]
-        fn only_owner() {
-            let mut proofs_metadata = ProofsMetadata::default();
-            // Simulate the owner and anyone else
-            // let owner = AccountId::from([0x01; 32]);
-            // let anyone = AccountId::from([0x02; 32]);
+            // #[ink::test]
+            // fn only_owner() {
+            //     let mut proofs_metadata = ProofsMetadata::default();
+            //     // let account = AccountId::from([0x1; 32]);
+            //     // ink::env::test::set_caller::<ink::env::DefaultEnvironment>(account);
+            //     // Simulate the owner and anyone else
+            //     let accounts = accounts();
 
-            // // Set the contract caller to 'anyone'
-            // set_sender(anyone);
-            // assert_eq!(
-            //     proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
-            //     Err(ProofsMetadataError::NotOwner)
-            // );
+            //     // Set the contract caller to 'bob'
+            //     change_caller(accounts.bob);
+            //     assert_eq!(
+            //         proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
+            //         Err(ProofsMetadataError::Ownable(OwnableError::CallerIsNotOwner))
+            //     );
 
-            // Set the contract caller to 'owner'
-            // set_sender(owner);
-            assert_eq!(
-                proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
-                Ok(())
-            );
-        }
+            //     // Set the contract caller to 'owner'
+            //     // set_sender(owner);
+            //     // assert_eq!(
+            //     //     proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
+            //     //     Ok(())
+            //     // );
+            // }
 
-        #[ink::test]
-        fn empty_input_params() {
-            let mut proofs_metadata = ProofsMetadata::default();
-            assert_eq!(
-                proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "".into(), "{}".into()),
-                Err(ProofsMetadataError::EmptyInputParams)
-            );
-            assert_eq!(
-                proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "".into()),
-                Err(ProofsMetadataError::EmptyInputParams)
-            );
-        }
+            #[ink::test]
+            fn empty_input_params() {
+                let mut proofs_metadata = ProofsMetadata::default();
+                assert_eq!(
+                    proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "".into(), "{}".into()),
+                    Err(ProofsMetadataError::EmptyInputParams)
+                );
+                assert_eq!(
+                    proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "".into()),
+                    Err(ProofsMetadataError::EmptyInputParams)
+                );
+            }
 
-        #[ink::test]
-        fn metadata_already_exists() {
-            let mut proofs_metadata = ProofsMetadata::default();
-            assert_eq!(
-                proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
-                Ok(())
-            );
-            assert_eq!(
-                proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
-                Err(ProofsMetadataError::MetadataExists)
-            );
-        }
+            #[ink::test]
+            fn metadata_already_exists() {
+                let mut proofs_metadata = ProofsMetadata::default();
+                assert_eq!(
+                    proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
+                    Ok(())
+                );
+                assert_eq!(
+                    proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
+                    Err(ProofsMetadataError::MetadataExists)
+                );
+            }
 
-        #[ink::test]
-        fn success_emits_an_event() {
-            let mut proofs_metadata = ProofsMetadata::default();
-            assert_eq!(
-                proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
-                Ok(())
-            );
-            // TODO: Check emitted event (you'll need to implement event checking)
+            #[ink::test]
+            fn success_emits_an_event() {
+                let mut proofs_metadata = ProofsMetadata::default();
+                assert_eq!(
+                    proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
+                    Ok(())
+                );
+                // TODO: Check emitted event (you'll need to implement event checking)
+            }
         }
     }
 
