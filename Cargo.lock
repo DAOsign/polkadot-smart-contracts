@@ -2668,17 +2668,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "my_ownable"
-version = "4.0.0-beta.1"
-dependencies = [
- "ink",
- "ink_e2e",
- "openbrush",
- "parity-scale-codec",
- "scale-info",
-]
-
-[[package]]
 name = "no-std-net"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

@@ -7,13 +7,12 @@ mod proofs_metadata {
     use ink::prelude::string::String;
     use ink::prelude::vec::Vec;
     use ink::storage::Mapping;
+    use ink::codegen::Env;
+    use ink::codegen::EmitEvent;
+
     use scale::{Decode, Encode};
     use openbrush::{
         modifiers,
-        // test_utils::{
-        //     accounts,
-        //     change_caller,
-        // },
         traits::Storage,
     };
 
@@ -73,11 +72,11 @@ mod proofs_metadata {
 
         #[ink(message)]
         #[modifiers(only_owner)]
-        fn add_metadata(&self, _type: ProofTypes, _version: String, _metadata: String) -> Result<(), ProofsMetadataError>;
+        fn add_metadata(&mut self, _type: ProofTypes, _version: String, _metadata: String) -> Result<(), ProofsMetadataError>;
 
         #[ink(message)]
         #[modifiers(only_owner)]
-        fn force_update_metadata(&self, _type: ProofTypes, _version: String, _metadata: String) -> Result<(), ProofsMetadataError>;
+        fn force_update_metadata(&mut self, _type: ProofTypes, _version: String, _metadata: String) -> Result<(), ProofsMetadataError>;
     }
 
     // Events
@@ -117,7 +116,7 @@ mod proofs_metadata {
 
         #[ink(message)]
         #[modifiers(only_owner)]
-        fn add_metadata(&self, _type: ProofTypes, _version: String, _metadata: String) -> Result<(), ProofsMetadataError> {
+        fn add_metadata(&mut self, _type: ProofTypes, _version: String, _metadata: String) -> Result<(), ProofsMetadataError> {
             if _version.len() == 0 || _metadata.len() == 0 {
                 return Err(ProofsMetadataError::EmptyInputParams)
             }
@@ -159,52 +158,20 @@ mod proofs_metadata {
         }
     }
 
-    /// Defines the storage of your contract.
-    /// Add new fields to the below struct in order
-    /// to add new static storage fields to your contract.
-    // #[ink(storage)]
-    // pub struct DaosignInk {
-    //     /// Stores a single `bool` value on the storage.
-    //     value: bool,
-    // }
-
-    // impl DaosignInk {
-    //     /// Constructor that initializes the `bool` value to the given `init_value`.
-    //     #[ink(constructor)]
-    //     pub fn new(init_value: bool) -> Self {
-    //         Self { value: init_value }
-    //     }
-
-    //     /// Constructor that initializes the `bool` value to `false`.
-    //     ///
-    //     /// Constructors can delegate to other constructors.
-    //     #[ink(constructor)]
-    //     pub fn default() -> Self {
-    //         Self::new(Default::default())
-    //     }
-
-    //     /// A message that can be called on instantiated contracts.
-    //     /// This one flips the value of the stored `bool` from `true`
-    //     /// to `false` and vice versa.
-    //     #[ink(message)]
-    //     pub fn flip(&mut self) {
-    //         self.value = !self.value;
-    //     }
-
-    //     /// Simply returns the current value of our `bool`.
-    //     #[ink(message)]
-    //     pub fn get(&self) -> bool {
-    //         self.value
-    //     }
-    // }
-
     #[cfg(test)]
     mod tests {
         use super::*;
 
+        use openbrush::{
+            test_utils::{
+                accounts,
+                change_caller,
+            },
+        };
+
         #[ink::test]
         fn constructor() {
-            let proofs_metadata = ProofsMetadata::default();
+            let proofs_metadata = ProofsMetadata::new();
             assert_eq!(proofs_metadata.proofs_metadata.get((ProofTypes::ProofOfAuthority, "")).unwrap_or_default(), "");
             assert_eq!(proofs_metadata.metadata_versions.get(ProofTypes::ProofOfSignature).unwrap_or_default().len(), 0);
         }
@@ -212,32 +179,28 @@ mod proofs_metadata {
         mod add_metadata {
             use super::*;
 
-            // #[ink::test]
-            // fn only_owner() {
-            //     let mut proofs_metadata = ProofsMetadata::default();
-            //     // let account = AccountId::from([0x1; 32]);
-            //     // ink::env::test::set_caller::<ink::env::DefaultEnvironment>(account);
-            //     // Simulate the owner and anyone else
-            //     let accounts = accounts();
+            #[ink::test]
+            fn only_owner() {
+                let mut proofs_metadata = ProofsMetadata::new();
+                let accounts = accounts();
 
-            //     // Set the contract caller to 'bob'
-            //     change_caller(accounts.bob);
-            //     assert_eq!(
-            //         proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
-            //         Err(ProofsMetadataError::Ownable(OwnableError::CallerIsNotOwner))
-            //     );
+                change_caller(accounts.bob);
+                assert_eq!(
+                    proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
+                    Err(ProofsMetadataError::Ownable(OwnableError::CallerIsNotOwner))
+                );
 
-            //     // Set the contract caller to 'owner'
-            //     // set_sender(owner);
-            //     // assert_eq!(
-            //     //     proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
-            //     //     Ok(())
-            //     // );
-            // }
+                // Set the contract caller to 'owner'
+                change_caller(accounts.alice);
+                assert_eq!(
+                    proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
+                    Ok(())
+                );
+            }
 
             #[ink::test]
             fn empty_input_params() {
-                let mut proofs_metadata = ProofsMetadata::default();
+                let mut proofs_metadata = ProofsMetadata::new();
                 assert_eq!(
                     proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "".into(), "{}".into()),
                     Err(ProofsMetadataError::EmptyInputParams)
@@ -250,7 +213,7 @@ mod proofs_metadata {
 
             #[ink::test]
             fn metadata_already_exists() {
-                let mut proofs_metadata = ProofsMetadata::default();
+                let mut proofs_metadata = ProofsMetadata::new();
                 assert_eq!(
                     proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
                     Ok(())
@@ -263,7 +226,7 @@ mod proofs_metadata {
 
             #[ink::test]
             fn success_emits_an_event() {
-                let mut proofs_metadata = ProofsMetadata::default();
+                let mut proofs_metadata = ProofsMetadata::new();
                 assert_eq!(
                     proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
                     Ok(())
@@ -273,75 +236,75 @@ mod proofs_metadata {
         }
     }
 
-    /// This is how you'd write end-to-end (E2E) or integration tests for ink! contracts.
-    ///
-    /// When running these you need to make sure that you:
-    /// - Compile the tests with the `e2e-tests` feature flag enabled (`--features e2e-tests`)
-    /// - Are running a Substrate node which contains `pallet-contracts` in the background
-    #[cfg(all(test, feature = "e2e-tests"))]
-    mod e2e_tests {
-        /// Imports all the definitions from the outer scope so we can use them here.
-        use super::*;
+    // This is how you'd write end-to-end (E2E) or integration tests for ink! contracts.
+    //
+    // When running these you need to make sure that you:
+    // - Compile the tests with the `e2e-tests` feature flag enabled (`--features e2e-tests`)
+    // - Are running a Substrate node which contains `pallet-contracts` in the background
+    // #[cfg(all(test, feature = "e2e-tests"))]
+    // mod e2e_tests {
+    //     /// Imports all the definitions from the outer scope so we can use them here.
+    //     use super::*;
 
-        /// A helper function used for calling contract messages.
-        use ink_e2e::build_message;
+    //     /// A helper function used for calling contract messages.
+    //     use ink_e2e::build_message;
 
-        /// The End-to-End test `Result` type.
-        type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+    //     /// The End-to-End test `Result` type.
+    //     type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-        /// We test that we can upload and instantiate the contract using its default constructor.
-        #[ink_e2e::test]
-        async fn default_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
-            // Given
-            let constructor = DaosignInkRef::default();
+    //     /// We test that we can upload and instantiate the contract using its default constructor.
+    //     #[ink_e2e::test]
+    //     async fn default_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+    //         // Given
+    //         let constructor = DaosignInkRef::default();
 
-            // When
-            let contract_account_id = client
-                .instantiate("daosign_ink", &ink_e2e::alice(), constructor, 0, None)
-                .await
-                .expect("instantiate failed")
-                .account_id;
+    //         // When
+    //         let contract_account_id = client
+    //             .instantiate("daosign_ink", &ink_e2e::alice(), constructor, 0, None)
+    //             .await
+    //             .expect("instantiate failed")
+    //             .account_id;
 
-            // Then
-            let get = build_message::<DaosignInkRef>(contract_account_id.clone())
-                .call(|daosign_ink| daosign_ink.get());
-            let get_result = client.call_dry_run(&ink_e2e::alice(), &get, 0, None).await;
-            assert!(matches!(get_result.return_value(), false));
+    //         // Then
+    //         let get = build_message::<DaosignInkRef>(contract_account_id.clone())
+    //             .call(|daosign_ink| daosign_ink.get());
+    //         let get_result = client.call_dry_run(&ink_e2e::alice(), &get, 0, None).await;
+    //         assert!(matches!(get_result.return_value(), false));
 
-            Ok(())
-        }
+    //         Ok(())
+    //     }
 
-        /// We test that we can read and write a value from the on-chain contract contract.
-        #[ink_e2e::test]
-        async fn it_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
-            // Given
-            let constructor = DaosignInkRef::new(false);
-            let contract_account_id = client
-                .instantiate("daosign_ink", &ink_e2e::bob(), constructor, 0, None)
-                .await
-                .expect("instantiate failed")
-                .account_id;
+    //     /// We test that we can read and write a value from the on-chain contract contract.
+    //     #[ink_e2e::test]
+    //     async fn it_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+    //         // Given
+    //         let constructor = DaosignInkRef::new(false);
+    //         let contract_account_id = client
+    //             .instantiate("daosign_ink", &ink_e2e::bob(), constructor, 0, None)
+    //             .await
+    //             .expect("instantiate failed")
+    //             .account_id;
 
-            let get = build_message::<DaosignInkRef>(contract_account_id.clone())
-                .call(|daosign_ink| daosign_ink.get());
-            let get_result = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
-            assert!(matches!(get_result.return_value(), false));
+    //         let get = build_message::<DaosignInkRef>(contract_account_id.clone())
+    //             .call(|daosign_ink| daosign_ink.get());
+    //         let get_result = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
+    //         assert!(matches!(get_result.return_value(), false));
 
-            // When
-            let flip = build_message::<DaosignInkRef>(contract_account_id.clone())
-                .call(|daosign_ink| daosign_ink.flip());
-            let _flip_result = client
-                .call(&ink_e2e::bob(), flip, 0, None)
-                .await
-                .expect("flip failed");
+    //         // When
+    //         let flip = build_message::<DaosignInkRef>(contract_account_id.clone())
+    //             .call(|daosign_ink| daosign_ink.flip());
+    //         let _flip_result = client
+    //             .call(&ink_e2e::bob(), flip, 0, None)
+    //             .await
+    //             .expect("flip failed");
 
-            // Then
-            let get = build_message::<DaosignInkRef>(contract_account_id.clone())
-                .call(|daosign_ink| daosign_ink.get());
-            let get_result = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
-            assert!(matches!(get_result.return_value(), true));
+    //         // Then
+    //         let get = build_message::<DaosignInkRef>(contract_account_id.clone())
+    //             .call(|daosign_ink| daosign_ink.get());
+    //         let get_result = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
+    //         assert!(matches!(get_result.return_value(), true));
 
-            Ok(())
-        }
-    }
+    //         Ok(())
+    //     }
+    // }
 }
