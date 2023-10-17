@@ -176,6 +176,42 @@ mod proofs_metadata {
             assert_eq!(proofs_metadata.metadata_versions.get(ProofTypes::ProofOfSignature).unwrap_or_default().len(), 0);
         }
 
+        // it('get proofsMetadata', async () => {
+        //     expect(await proofsMetadata.proofsMetadata(Proofs.ProofOfAuthority, '0.3.0')).equal('0x');
+        //     expect(await proofsMetadata.proofsMetadata(Proofs.ProofOfAuthority, '0.1.0')).equal(
+        //       proofJSONtoBytes({ domain: 'daosign' }),
+        //     );
+        //     expect(await proofsMetadata.proofsMetadata(Proofs.ProofOfSignature, '0.1.0')).equal(
+        //       proofJSONtoBytes({ signer: 0x12345 }),
+        //     );
+        //     expect(await proofsMetadata.proofsMetadata(Proofs.ProofOfAuthority, '0.2.0')).equal(
+        //       proofJSONtoBytes({ domain: 'daosign' }),
+        //     );
+      
+        //     await proofsMetadata.forceUpdateMetadata(
+        //       Proofs.ProofOfAuthority,
+        //       '0.1.0',
+        //       proofJSONtoBytes({}),
+        //     );
+      
+        //     expect(await proofsMetadata.proofsMetadata(Proofs.ProofOfAuthority, '0.1.0')).equal(
+        //       proofJSONtoBytes({}),
+        //     );
+        //   });
+
+        //   it('get metadataVersions', async () => {
+        //     expect(await proofsMetadata.metadataVersions(Proofs.ProofOfAuthority, 0)).equal('0.1.0');
+        //     expect(await proofsMetadata.metadataVersions(Proofs.ProofOfAuthority, 1)).equal('0.2.0');
+        //     expect(await proofsMetadata.metadataVersions(Proofs.ProofOfSignature, 0)).equal('0.1.0');
+        //   });
+      
+        //   it('getMetadataNumOfVersions', async () => {
+        //     expect(await proofsMetadata.getMetadataNumOfVersions(Proofs.ProofOfAuthority)).equal(2);
+        //     expect(await proofsMetadata.getMetadataNumOfVersions(Proofs.ProofOfSignature)).equal(1);
+        //     expect(await proofsMetadata.getMetadataNumOfVersions(Proofs.ProofOfAgreement)).equal(0);
+        //   });
+      
+
         mod add_metadata {
             use super::*;
 
@@ -229,6 +265,69 @@ mod proofs_metadata {
                 let mut proofs_metadata = ProofsMetadata::new();
                 assert_eq!(
                     proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
+                    Ok(())
+                );
+                // TODO: Check emitted event (you'll need to implement event checking)
+            }
+        }
+
+        mod force_update_metadata {
+            use super::*;
+
+            #[ink::test]
+            fn only_owner() {
+                let mut proofs_metadata = ProofsMetadata::new();
+                let _ = proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into());
+                let accounts = accounts();
+
+                change_caller(accounts.bob);
+                assert_eq!(
+                    proofs_metadata.force_update_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
+                    Err(ProofsMetadataError::Ownable(OwnableError::CallerIsNotOwner))
+                );
+
+                // Set the contract caller to 'owner'
+                change_caller(accounts.alice);
+                assert_eq!(
+                    proofs_metadata.force_update_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
+                    Ok(())
+                );
+            }
+
+            #[ink::test]
+            fn empty_input_params() {
+                let mut proofs_metadata = ProofsMetadata::new();
+                let _ = proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into());
+                assert_eq!(
+                    proofs_metadata.force_update_metadata(ProofTypes::ProofOfAuthority, "".into(), "{}".into()),
+                    Err(ProofsMetadataError::EmptyInputParams)
+                );
+                assert_eq!(
+                    proofs_metadata.force_update_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "".into()),
+                    Err(ProofsMetadataError::EmptyInputParams)
+                );
+            }
+
+            #[ink::test]
+            fn metadata_does_not_exist() {
+                let mut proofs_metadata = ProofsMetadata::new();
+                assert_eq!(
+                    proofs_metadata.force_update_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
+                    Err(ProofsMetadataError::NoMetadata)
+                );
+                let _ = proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into());
+                assert_eq!(
+                    proofs_metadata.force_update_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
+                    Ok(())
+                );
+            }
+
+            #[ink::test]
+            fn success_emits_an_event() {
+                let mut proofs_metadata = ProofsMetadata::new();
+                let _ = proofs_metadata.add_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into());
+                assert_eq!(
+                    proofs_metadata.force_update_metadata(ProofTypes::ProofOfAuthority, "0.1.0".into(), "{}".into()),
                     Ok(())
                 );
                 // TODO: Check emitted event (you'll need to implement event checking)
