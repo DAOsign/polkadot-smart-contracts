@@ -3216,6 +3216,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "proofs_verification"
+version = "0.1.0"
+dependencies = [
+ "ink",
+ "ink_e2e",
+ "parity-scale-codec",
+ "scale-info",
+ "tiny-keccak",
+]
+
+[[package]]
 name = "psm"
 version = "0.1.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
