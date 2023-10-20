@@ -2,6 +2,7 @@
 
 #[ink::contract]
 mod proofs_verification {
+    use hex::FromHex;
     use ink::prelude::vec::Vec;
     use ink_env::hash::CryptoHash;
     use tiny_keccak::{Hasher, Keccak};
@@ -69,6 +70,28 @@ mod proofs_verification {
         #[ink::test]
         fn constructor() {
             let _ = ProofsVerification::new();
+        }
+
+        #[ink::test]
+        fn verify_signed_proof_works() {
+            let contract = ProofsVerification::new();
+
+            // Values from Ethereum. Replace these dummy values with real ones.
+            let signer: AccountId = AccountId::from(
+                <[u8; 32]>::from_hex("00".repeat(12) + "3C44CdDdB6a900fa2b585dd299e03d12FA4293BC")
+                    .unwrap(),
+            );
+
+            let data: [u8; 32] = <[u8; 32]>::from_hex(
+                "49145797d5b241d1bc807fddde38d675212624d4556f22246bde8be447967f8e",
+            )
+            .unwrap();
+
+            let signature: [u8; 65] = <[u8; 65]>::from_hex("1fccf4ff11872b0426c7b7826db58b876d9d02d78759b5a7bccc1035f451248b5369ccbebc00094043f55746733f975dfbf7c2000c204853a9ea38ebccf8eb101c").unwrap();
+
+            // Verify that the signature is valid
+            let is_valid = contract.verify(signer, data, signature);
+            assert_eq!(is_valid, true);
         }
     }
 }

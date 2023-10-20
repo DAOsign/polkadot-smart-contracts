@@ -3283,6 +3283,7 @@ name = "proofs_verification"
 version = "0.1.0"
 dependencies = [
  "ecdsa",
+ "hex",
  "ink",
  "ink_e2e",
  "ink_env",
