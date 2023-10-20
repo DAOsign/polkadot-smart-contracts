@@ -3,8 +3,6 @@
 #[ink::contract]
 mod proofs_verification {
     use ink::prelude::vec::Vec;
-
-    // use ink_e2e::sr25519::verify;
     use ink_env::hash::CryptoHash;
     use tiny_keccak::{Hasher, Keccak};
 
@@ -52,11 +50,11 @@ mod proofs_verification {
 
             // Get AccountId from output (compressed public key)
             let mut generated_account_id_data = [0u8; 32];
-            let mut hasher = ink_env::hash::Blake2x256::hash(
+            let _ = ink_env::hash::Blake2x256::hash(
                 &uncompressed_public_key,
                 &mut generated_account_id_data,
             );
-            let mut generated_account_id = AccountId::from(generated_account_id_data);
+            let generated_account_id = AccountId::from(generated_account_id_data);
             if signer == generated_account_id {
                 return true;
             }
@@ -64,17 +62,13 @@ mod proofs_verification {
         }
     }
 
-    /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
-    /// module and test functions are marked with a `#[test]` attribute.
-    /// The below code is technically just normal Rust code.
     #[cfg(test)]
     mod tests {
         use super::*;
 
         #[ink::test]
-        fn default_works() {
-            // let proofs_verification = ProofsVerification::default();
-            // assert_eq!(proofs_verification.get(), false);
+        fn constructor() {
+            let _ = ProofsVerification::new();
         }
     }
 }
