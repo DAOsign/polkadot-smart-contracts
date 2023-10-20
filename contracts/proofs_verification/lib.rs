@@ -2,9 +2,10 @@
 
 #[ink::contract]
 mod proofs_verification {
-    use ink::prelude::{string::String, vec::Vec};
+    use ink::prelude::vec::Vec;
 
     // use ink_e2e::sr25519::verify;
+    use ink_env::hash::CryptoHash;
     use tiny_keccak::{Hasher, Keccak};
 
     #[ink(storage)]
@@ -22,7 +23,7 @@ mod proofs_verification {
             &self,
             signer: AccountId,
             data: Vec<u8>,
-            signature: Vec<u8>,
+            signature: [u8; 65],
         ) -> bool {
             let mut keccak = Keccak::v256();
             keccak.update(&data);
@@ -32,7 +33,7 @@ mod proofs_verification {
         }
 
         #[ink(message)]
-        pub fn verify(&self, signer: AccountId, data_hash: [u8; 32], signature: Vec<u8>) -> bool {
+        pub fn verify(&self, signer: AccountId, data_hash: [u8; 32], signature: [u8; 65]) -> bool {
             let msg_prefix: Vec<u8> = vec![0x19u8, 0x45u8];
             let msg_text = b"Ethereum Signed Message:\n32";
             let mut msg_hash_bytes = Vec::new();
@@ -46,13 +47,20 @@ mod proofs_verification {
             keccak.finalize(&mut msg_hash);
 
             // TODO: import cryptography library for ECDSA
-            // let res = ecdsa::signature::Verifier::verify(&self, &data_hash, &signature);
-            // if res.is_err() {
-            //     return false;
-            // } else {
-            //     return true; // TODO: compare resulting address and `signer`
-            // }
-            true
+            let mut uncompressed_public_key = [0; 33];
+            let _ = ink_env::ecdsa_recover(&signature, &data_hash, &mut uncompressed_public_key);
+
+            // Get AccountId from output (compressed public key)
+            let mut generated_account_id_data = [0u8; 32];
+            let mut hasher = ink_env::hash::Blake2x256::hash(
+                &uncompressed_public_key,
+                &mut generated_account_id_data,
+            );
+            let mut generated_account_id = AccountId::from(generated_account_id_data);
+            if signer == generated_account_id {
+                return true;
+            }
+            false
         }
     }
 
