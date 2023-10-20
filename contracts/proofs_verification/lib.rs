@@ -4,6 +4,7 @@
 mod proofs_verification {
     use ink::prelude::{string::String, vec::Vec};
 
+    // use ink_e2e::sr25519::verify;
     use tiny_keccak::{Hasher, Keccak};
 
     #[ink(storage)]
@@ -15,61 +16,44 @@ mod proofs_verification {
             Self {}
         }
 
-        /// Verify Proof-of-Authority or Proof-of-Signature signature
-        ///
-        /// Parameters:
-        /// - `_signer`: Signer of the data
-        /// - `_data`: Raw Proof-of-Authority byte array that the signer signs
-        /// - `_signature`: Signature of the `_data`
-        ///
-        /// Returns:
-        /// - `bool`: Is the signature valid or not
+        /// Verifies the signature for given data
         #[ink(message)]
         pub fn verify_signed_proof(
             &self,
-            _signer: AccountId,
-            _data: String,
-            _signature: Vec<u8>,
+            signer: AccountId,
+            data: Vec<u8>,
+            signature: Vec<u8>,
         ) -> bool {
             let mut keccak = Keccak::v256();
+            keccak.update(&data);
             let mut data_hash = [0u8; 32];
-
-            // Update the hash
-            keccak.update(_data.as_bytes());
-
-            // Finalize it
             keccak.finalize(&mut data_hash);
-
-            // let data_hash = Keccak256(&_data);
-            // self.verify(_signer, data_hash, _signature)
-            true
+            Self::verify(self, signer, data_hash, signature)
         }
 
-        // /// Verify any signature of any data
-        // ///
-        // /// Parameters:
-        // /// - `_signer`: Signer of the data
-        // /// - `_data_hash`: Hash of the data that was signed
-        // /// - `_signature`: Signature of the data
-        // ///
-        // /// Returns:
-        // /// - `bool`: Is the signature valid or not
-        // #[ink(message)]
-        // pub fn verify(
-        //     &self,
-        //     _signer: AccountId,
-        //     _data_hash: Sha3_256,
-        //     _signature: Vec<u8>,
-        // ) -> bool {
-        //     // let signature = MultiSignature::from_slice(&_signature);
-        //     // if signature.is_none() {
-        //     //     return false;
-        //     // }
-        //     // signature
-        //     //     .unwrap()
-        //     //     .verify(&_data_hash.as_fixed_bytes(), &_signer)
-        //     true
-        // }
+        #[ink(message)]
+        pub fn verify(&self, signer: AccountId, data_hash: [u8; 32], signature: Vec<u8>) -> bool {
+            let msg_prefix: Vec<u8> = vec![0x19u8, 0x45u8];
+            let msg_text = b"Ethereum Signed Message:\n32";
+            let mut msg_hash_bytes = Vec::new();
+            msg_hash_bytes.extend(msg_prefix);
+            msg_hash_bytes.extend_from_slice(msg_text);
+            msg_hash_bytes.extend_from_slice(&data_hash);
+
+            let mut keccak = Keccak::v256();
+            keccak.update(&msg_hash_bytes);
+            let mut msg_hash = [0u8; 32];
+            keccak.finalize(&mut msg_hash);
+
+            // TODO: import cryptography library for ECDSA
+            // let res = ecdsa::signature::Verifier::verify(&self, &data_hash, &signature);
+            // if res.is_err() {
+            //     return false;
+            // } else {
+            //     return true; // TODO: compare resulting address and `signer`
+            // }
+            true
+        }
     }
 
     /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
