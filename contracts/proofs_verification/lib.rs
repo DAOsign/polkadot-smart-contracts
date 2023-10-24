@@ -90,9 +90,10 @@ mod proofs_verification {
         }
 
         #[ink::test]
-        fn verify_works() {
+        fn verify_any_signature() {
             let contract = ProofsVerification::new();
 
+            // Note: accounds, messages, and signatures are taken from DAOsign Solidity implementation
             let signer_1: AccountId = AccountId::from(
                 <[u8; 32]>::from_hex("00".repeat(12) + "3C44CdDdB6a900fa2b585dd299e03d12FA4293BC")
                     .unwrap(),
@@ -130,6 +131,42 @@ mod proofs_verification {
 
             // wrong signature of message2
             let is_valid = contract.verify(signer_1, message_2, signature_1);
+            assert_eq!(is_valid, false);
+        }
+
+        #[ink::test]
+        fn verify_signed_proof() {
+            let contract = ProofsVerification::new();
+
+            let signer_1: AccountId = AccountId::from(
+                <[u8; 32]>::from_hex("00".repeat(12) + "3C44CdDdB6a900fa2b585dd299e03d12FA4293BC")
+                    .unwrap(),
+            );
+            let signer_2: AccountId = AccountId::from(
+                <[u8; 32]>::from_hex("00".repeat(12) + "90F79bf6EB2c4f870365E785982E1f101E93b906")
+                    .unwrap(),
+            );
+            let string_data = String::from("{\"types\":{\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint64\"},{\"name\":\"verifyingContract\",\"type\":\"address\"}],\"Agreement\":[{\"name\":\"from\",\"type\":\"address\"},{\"name\":\"agreementFileCID\",\"type\":\"string\"},{\"name\":\"signers\",\"type\":\"Signers\"},{\"name\":\"app\",\"type\":\"string\"},{\"name\":\"timestamp\",\"type\":\"uint64\"},{\"name\":\"metadata\",\"type\":\"string\"}],\"Signers\":[{\"name\":\"address\",\"type\":\"string\"},{\"name\":\"metadata\",\"type\":\"string\"}]},\"domain\":{\"name\":\"daosign\",\"version\":\"0.1.0\"},\"primaryType\":\"Agreement\",\"message\":{\"from\":\"0x70997970C51812dc3A010C7d01b50e0d17dc79C8\",\"agreementFileCID\":\"QmQY5XFRomrnAD3o3yMWkTz1HWcCfZYuE87Gbwe7SjV1kk\",\"signers\":[\"0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC\",\"0x90F79bf6EB2c4f870365E785982E1f101E93b906\",\"0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65\"],\"app\":\"daosign\",\"timestamp\":1698106902,\"metadata\":{}}}");
+            let data = string_data.into_bytes();
+
+            let poa_signature1: [u8; 65] = <[u8; 65]>::from_hex(
+                "355e26d4e5dc8586d916bc795fea15e9034b33a5cb9086ef3e7e5dd7800babb65da380e2a32684370a52937d6553e54010a7df7ccba9de3d6bfa2150785cddc81c",
+            )
+            .unwrap();
+            let poa_signature2: [u8; 65] = <[u8; 65]>::from_hex(
+                "89a325f3d371a0db456532c2b907243c48c608b2898c1eee39cbb99a752f313360a4e59e3dcc6548319774187af8df424721e82e40f6dc2edee81ef723ebd94e1c",
+            )
+            .unwrap();
+
+            // correct signer of the proof
+            let is_valid = contract.verify_signed_proof(signer_1, data.clone(), poa_signature1);
+            assert_eq!(is_valid, true);
+            let is_valid = contract.verify_signed_proof(signer_2, data.clone(), poa_signature2);
+            assert_eq!(is_valid, true);
+            // wrong signer of the proof
+            let is_valid = contract.verify_signed_proof(signer_2, data.clone(), poa_signature1);
+            assert_eq!(is_valid, false);
+            let is_valid = contract.verify_signed_proof(signer_1, data.clone(), poa_signature2);
             assert_eq!(is_valid, false);
         }
     }
