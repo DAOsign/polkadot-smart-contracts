@@ -40,9 +40,6 @@ mod proofs_metadata {
         ProofOfAgreement,
     }
 
-    /// ProofsMetadata result type
-    // pub type Result<T> = core::result::Result<T, ProofsMetadataError>;
-
     #[ink(storage)]
     #[derive(Default, Storage)]
     pub struct ProofsMetadata {
