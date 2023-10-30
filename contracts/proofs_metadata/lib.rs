@@ -1,9 +1,8 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-// #[ink::contract]
 #[openbrush::implementation(Ownable)]
 #[openbrush::contract]
-mod proofs_metadata {
+pub mod proofs_metadata {
     use ink::codegen::EmitEvent;
     use ink::codegen::Env;
     use ink::prelude::string::String;
@@ -41,7 +40,7 @@ mod proofs_metadata {
     }
 
     #[ink(storage)]
-    #[derive(Default, Storage)]
+    #[derive(Debug, Default, Storage)]
     pub struct ProofsMetadata {
         // proof type -> version -> metadata
         proofs_metadata: Mapping<(ProofTypes, String), String>,

@@ -3273,7 +3273,9 @@ version = "0.1.0"
 dependencies = [
  "ink",
  "ink_e2e",
+ "ink_env",
  "parity-scale-codec",
+ "proofs_metadata",
  "scale-info",
 ]
 
