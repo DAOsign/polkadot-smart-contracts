@@ -2,7 +2,7 @@
 
 #[ink::contract]
 mod daosign_eip712 {
-    use hex::{FromHex, ToHex};
+    use hex::FromHex;
     use ink::prelude::{string::String, vec::Vec};
     use scale::{Decode, Encode};
     use tiny_keccak::{Hasher, Keccak};
@@ -19,8 +19,10 @@ mod daosign_eip712 {
     pub struct EIP712Domain {
         name: String,
         version: String,
-        // chain_id: u128,
-        // verifying_contract: AccountId,
+        // As max size in Rust is u128 comparing to u256 in Solidity, chain_id is defined as an
+        // array of u8 of size 32 rather than u128. This is done to not loose precision
+        chain_id: [u8; 32],
+        verifying_contract: AccountId,
     }
 
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
@@ -346,31 +348,14 @@ mod daosign_eip712 {
             output
         }
 
-        // TODO: use only for test
-        fn to_hex_string(bytes: &[u8]) -> String {
-            bytes.iter().map(|byte| format!("{:02x}", byte)).collect()
-        }
-
         pub fn hash_domain(&self, data: EIP712Domain) -> [u8; 32] {
-            let name_hash = Self::keccak_hash(data.name.as_str());
-            let version_hash = Self::keccak_hash(data.version.as_str());
-            println!("name_hash: {:?}", Self::to_hex_string(name_hash.as_slice()));
-            println!(
-                "version_hash: {:?}",
-                Self::to_hex_string(version_hash.as_slice())
-            );
-
             let mut encoded_data = Vec::new();
-            encoded_data.extend_from_slice(self.eip712domain_typehash.as_slice());
-            encoded_data.extend_from_slice(&name_hash);
-            encoded_data.extend_from_slice(&version_hash);
-            // encoded_data.extend_from_slice(&data.chain_id.to_le_bytes());
-            // encoded_data.extend(Self::keccak_hash_bytes(&data.verifying_contract.encode()));
 
-            println!(
-                "encoded_data: {:?}",
-                Self::to_hex_string(encoded_data.as_slice())
-            );
+            encoded_data.extend_from_slice(self.eip712domain_typehash.as_slice());
+            encoded_data.extend_from_slice(&Self::keccak_hash(data.name.as_str()));
+            encoded_data.extend_from_slice(&Self::keccak_hash(data.version.as_str()));
+            encoded_data.extend_from_slice(data.chain_id.as_slice());
+            encoded_data.extend_from_slice(data.verifying_contract.encode().as_slice());
 
             Self::keccak_hash_bytes(&encoded_data)
         }
@@ -387,25 +372,20 @@ mod daosign_eip712 {
     mod tests {
         use super::*;
 
-        // TODO: use only for test
-        fn to_hex_string(bytes: &[u8]) -> String {
-            bytes.iter().map(|byte| format!("{:02x}", byte)).collect()
-        }
-
         #[ink::test]
         fn constructor() {
             let instance = DAOsignEIP712::new(EIP712Domain {
                 name: "daosign".into(),
                 version: "0.1.0".into(),
-                // chain_id: 0,
-                // verifying_contract: [0; 20],
+                chain_id: [0; 32],
+                verifying_contract: [0; 32].into(),
             });
 
             // Test domain hash
             assert_eq!(
                 instance.domain_hash,
                 <[u8; 32]>::from_hex(
-                    "43e798a5d7f7bcf01f41e12ace347a1c93193ce3fb656497a2227fda8c045411",
+                    "98670852334fc8f702b23d30e8b0adf9084b364869f775b23e9b89e3c50390c0",
                 )
                 .unwrap()
             );
