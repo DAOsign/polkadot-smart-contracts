@@ -439,6 +439,19 @@ mod daosign_eip712 {
 
             Self::keccak_hash_bytes(&encoded_data)
         }
+
+        #[ink(message)]
+        pub fn recover(&self, message: [u8; 32], sig: [u8; 65]) -> [u8; 20] {
+            // Recover the public key from the signature
+            let mut uncompressed_public_key = [0; 33];
+            let _ = ink::env::ecdsa_recover(&sig, &message, &mut uncompressed_public_key);
+
+            // Convert public key to Ethereum address
+            let mut account_id_bytes = [0; 20];
+            let _ = ink::env::ecdsa_to_eth_address(&uncompressed_public_key, &mut account_id_bytes);
+
+            account_id_bytes
+        }
     }
 
     #[cfg(test)]
@@ -532,15 +545,31 @@ mod daosign_eip712 {
             );
         }
 
-        // #[ink::test]
-        // fn hash() {
-        //     let instance = DAOsignEIP712::new(EIP712Domain {
-        //         name: "daosign".into(),
-        //         version: "0.1.0".into(),
-        //         // chain_id: 0,
-        //         // verifying_contract: [0; 32].into(),
-        //     });
-        //     assert_eq!(instance.hash(), [1; 32]);
-        // }
+        #[ink::test]
+        fn recover() {
+            let instance = DAOsignEIP712::new(EIP712Domain {
+                name: "daosign".into(),
+                version: "0.1.0".into(),
+                chain_id: [0; 32],
+                verifying_contract: [0; 32].into(),
+            });
+
+            // Note: accounds, messages, and signatures are taken from DAOsign Solidity implementation
+            let signer_1 =
+                <[u8; 20]>::from_hex("f39fd6e51aad88f6f4ce6ab8827279cfffb92266").unwrap();
+            let message_1 = <[u8; 32]>::from_hex(
+                "b4ba9fa5bd01eac4ecd44891aaf6393135b1f6591d58ee35c6ed8ec659c8e70a",
+            )
+            .unwrap();
+            let signature_1 = <[u8; 65]>::from_hex("554077fec636b586196831bd072559673dc34af8aea2cd98b05de209934fa7f034c5bc8da3c314c0cc0fa94dd70e31406fbb167b52a8ac9d916d0d30275ed6b41b").unwrap();
+            let message_2 = <[u8; 32]>::from_hex(
+                "c95811b04c82d394fb0bce7b59316f7932db448a15cbae7d74f3f8df0284fe01",
+            )
+            .unwrap();
+            let signature_2 = <[u8; 65]>::from_hex("db447694c8688c5b057d131f90cde25ec656fee4467c78243063e98e37523799311df7f7527b6d3eba0c84d6d5faa9f257e837496890f545a2a4d10611ce6d331c").unwrap();
+
+            assert_eq!(instance.recover(message_1, signature_1), signer_1);
+            assert_eq!(instance.recover(message_2, signature_2), signer_1);
+        }
     }
 }
