@@ -8,6 +8,7 @@ mod daosign_eip712 {
     //
     // structs definitions
     //
+
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
     #[cfg_attr(
         feature = "std",
@@ -82,7 +83,7 @@ mod daosign_eip712 {
         kind: String,
     }
 
-    #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
+    #[derive(Default, Debug, Clone, PartialEq, Eq, Decode, Encode)]
     #[cfg_attr(
         feature = "std",
         derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
@@ -105,7 +106,7 @@ mod daosign_eip712 {
         message: ProofOfAuthority,
     }
 
-    #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
+    #[derive(Default, Debug, Clone, PartialEq, Eq, Decode, Encode)]
     #[cfg_attr(
         feature = "std",
         derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
@@ -127,7 +128,7 @@ mod daosign_eip712 {
         message: ProofOfSignature,
     }
 
-    #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
+    #[derive(Default, Debug, Clone, PartialEq, Eq, Decode, Encode)]
     #[cfg_attr(
         feature = "std",
         derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
@@ -154,12 +155,153 @@ mod daosign_eip712 {
     //
 
     #[ink(storage)]
-    pub struct DAOsignEIP712 {}
+    pub struct DAOsignEIP712 {
+        // bytes32 DOMAIN_HASH;
+        // EIP712Domain domain;
+        proof_of_authority_types: EIP712ProofOfAuthorityTypes,
+        proof_of_signature_types: EIP712ProofOfSignatureTypes,
+        proof_of_agreement_types: EIP712ProofOfAgreementTypes,
+    }
 
     impl DAOsignEIP712 {
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self {}
+            let mut instance = Self {
+                proof_of_authority_types: EIP712ProofOfAuthorityTypes::default(),
+                proof_of_signature_types: EIP712ProofOfSignatureTypes::default(),
+                proof_of_agreement_types: EIP712ProofOfAgreementTypes::default(),
+            };
+            instance.init_eip712_types();
+            instance
+        }
+
+        fn init_eip712_types(&mut self) -> () {
+            // Initialize EIP712Domain types
+            let domain_types = vec![
+                EIP712PropertyType {
+                    name: "name".to_string(),
+                    kind: "string".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "version".to_string(),
+                    kind: "string".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "chainId".to_string(),
+                    kind: "uint256".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "verifyingContract".to_string(),
+                    kind: "address".to_string(),
+                },
+            ];
+
+            // Initialize Signer types
+            let signer_types = vec![
+                EIP712PropertyType {
+                    name: "addr".to_string(),
+                    kind: "address".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "metadata".to_string(),
+                    kind: "string".to_string(),
+                },
+            ];
+
+            // Initialize ProofOfAuthority types
+            let proof_of_authority_types = vec![
+                EIP712PropertyType {
+                    name: "name".to_string(),
+                    kind: "string".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "from".to_string(),
+                    kind: "address".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "agreementCID".to_string(),
+                    kind: "string".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "signers".to_string(),
+                    kind: "Signer[]".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "app".to_string(),
+                    kind: "string".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "timestamp".to_string(),
+                    kind: "uint256".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "metadata".to_string(),
+                    kind: "string".to_string(),
+                },
+            ];
+
+            // Initialize ProofOfSignature types
+            let proof_of_signature_types = vec![
+                EIP712PropertyType {
+                    name: "name".to_string(),
+                    kind: "string".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "signer".to_string(),
+                    kind: "address".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "agreementCID".to_string(),
+                    kind: "string".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "app".to_string(),
+                    kind: "string".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "timestamp".to_string(),
+                    kind: "uint256".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "metadata".to_string(),
+                    kind: "string".to_string(),
+                },
+            ];
+
+            // Initialize ProofOfAgreement types
+            let proof_of_agreement_types = vec![
+                EIP712PropertyType {
+                    name: "agreementCID".to_string(),
+                    kind: "string".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "signatureCIDs".to_string(),
+                    kind: "string[]".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "app".to_string(),
+                    kind: "string".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "timestamp".to_string(),
+                    kind: "uint256".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "metadata".to_string(),
+                    kind: "string".to_string(),
+                },
+            ];
+
+            // Set the types in the contract's storage
+            self.proof_of_authority_types.eip712_domain = domain_types.clone();
+            self.proof_of_authority_types.signer = signer_types.clone();
+            self.proof_of_authority_types.proof_of_authority = proof_of_authority_types.clone();
+
+            self.proof_of_signature_types.eip712_domain = domain_types.clone();
+            self.proof_of_signature_types.proof_of_signature = proof_of_signature_types.clone();
+
+            self.proof_of_agreement_types.eip712_domain = domain_types;
+            self.proof_of_agreement_types.proof_of_agreement = proof_of_agreement_types;
         }
     }
 
