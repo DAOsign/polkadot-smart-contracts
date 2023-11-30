@@ -46,7 +46,8 @@ mod daosign_eip712 {
         agreement_cid: String,
         signers: Vec<Signer>,
         app: String,
-        timestamp: u128,
+        // As Rust doesn't have u256 type as in Solidity, we're using [u8; 32] here
+        timestamp: [u8; 32],
         metadata: String,
     }
 
@@ -60,7 +61,8 @@ mod daosign_eip712 {
         signer: AccountId,
         agreement_cid: String,
         app: String,
-        timestamp: u128,
+        // As Rust doesn't have u256 type as in Solidity, we're using [u8; 32] here
+        timestamp: [u8; 32],
         metadata: String,
     }
 
@@ -73,7 +75,8 @@ mod daosign_eip712 {
         agreement_cid: String,
         signature_cids: Vec<String>,
         app: String,
-        timestamp: u128,
+        // As Rust doesn't have u256 type as in Solidity, we're using [u8; 32] here
+        timestamp: [u8; 32],
         metadata: String,
     }
 
@@ -347,7 +350,10 @@ mod daosign_eip712 {
             keccak.finalize(&mut output);
             output
         }
+    }
 
+    impl DAOsignEIP712 {
+        #[ink(message)]
         pub fn hash_domain(&self, data: EIP712Domain) -> [u8; 32] {
             let mut encoded_data = Vec::new();
 
@@ -359,12 +365,79 @@ mod daosign_eip712 {
 
             Self::keccak_hash_bytes(&encoded_data)
         }
-    }
 
-    impl DAOsignEIP712 {
         #[ink(message)]
-        pub fn hash(&self) -> [u8; 32] {
-            [1; 32]
+        pub fn hash_signer(&self, data: Signer) -> [u8; 32] {
+            let mut encoded_data = Vec::new();
+
+            encoded_data.extend_from_slice(self.signer_typehash.as_slice());
+            encoded_data.extend_from_slice(data.addr.encode().as_slice());
+            encoded_data.extend_from_slice(&Self::keccak_hash(&data.metadata.as_str()));
+
+            Self::keccak_hash_bytes(&encoded_data)
+        }
+
+        #[ink(message)]
+        pub fn hash_signers(&self, data: Vec<Signer>) -> [u8; 32] {
+            let mut encoded_data = Vec::new();
+            for signer in data.iter() {
+                encoded_data.extend_from_slice(&self.hash_signer(signer.clone()));
+            }
+            Self::keccak_hash_bytes(&encoded_data)
+        }
+
+        #[ink(message)]
+        pub fn hash_proof_of_authority(&self, data: ProofOfAuthority) -> [u8; 32] {
+            let mut encoded_data = Vec::new();
+
+            encoded_data.extend_from_slice(self.proof_of_authority_typehash.as_slice());
+            encoded_data.extend_from_slice(&Self::keccak_hash(&data.name));
+            encoded_data.extend_from_slice(data.from.encode().as_slice());
+            encoded_data.extend_from_slice(&Self::keccak_hash(&data.agreement_cid));
+            encoded_data.extend_from_slice(&self.hash_signers(data.signers));
+            encoded_data.extend_from_slice(&Self::keccak_hash(&data.app));
+            encoded_data.extend_from_slice(data.timestamp.as_slice());
+            encoded_data.extend_from_slice(&Self::keccak_hash(&data.metadata));
+
+            Self::keccak_hash_bytes(&encoded_data)
+        }
+
+        #[ink(message)]
+        pub fn hash_proof_of_signature(&self, data: ProofOfSignature) -> [u8; 32] {
+            let mut encoded_data = Vec::new();
+
+            encoded_data.extend_from_slice(self.proof_of_signature_typehash.as_slice());
+            encoded_data.extend_from_slice(&Self::keccak_hash(&data.name));
+            encoded_data.extend_from_slice(data.signer.encode().as_slice());
+            encoded_data.extend_from_slice(&Self::keccak_hash(&data.agreement_cid));
+            encoded_data.extend_from_slice(&Self::keccak_hash(&data.app));
+            encoded_data.extend_from_slice(data.timestamp.as_slice());
+            encoded_data.extend_from_slice(&Self::keccak_hash(&data.metadata));
+
+            Self::keccak_hash_bytes(&encoded_data)
+        }
+
+        #[ink(message)]
+        pub fn hash_strings(&self, data: Vec<String>) -> [u8; 32] {
+            let mut encoded_data = Vec::new();
+            for string in data.iter() {
+                encoded_data.extend_from_slice(&Self::keccak_hash(string));
+            }
+            Self::keccak_hash_bytes(&encoded_data)
+        }
+
+        #[ink(message)]
+        pub fn hash_proof_of_agreement(&self, data: ProofOfAgreement) -> [u8; 32] {
+            let mut encoded_data = Vec::new();
+
+            encoded_data.extend_from_slice(self.proof_of_agreement_typehash.as_slice());
+            encoded_data.extend_from_slice(&Self::keccak_hash(&data.agreement_cid));
+            encoded_data.extend_from_slice(&self.hash_strings(data.signature_cids));
+            encoded_data.extend_from_slice(&Self::keccak_hash(&data.app));
+            encoded_data.extend_from_slice(data.timestamp.as_slice());
+            encoded_data.extend_from_slice(&Self::keccak_hash(&data.metadata));
+
+            Self::keccak_hash_bytes(&encoded_data)
         }
     }
 
