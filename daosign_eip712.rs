@@ -317,6 +317,39 @@ mod daosign_eip712 {
         use super::*;
 
         #[ink::test]
+        fn constructor() {
+            let instance = DAOsignEIP712::new();
+            // Test Proof-of-Authority
+            assert_eq!(
+                instance.proof_of_authority_types.eip712_domain.len() > 0,
+                true
+            );
+            assert_eq!(instance.proof_of_authority_types.signer.len() > 0, true);
+            assert_eq!(
+                instance.proof_of_authority_types.proof_of_authority.len() > 0,
+                true
+            );
+            // Test Proof-of-Signature
+            assert_eq!(
+                instance.proof_of_signature_types.eip712_domain.len() > 0,
+                true
+            );
+            assert_eq!(
+                instance.proof_of_signature_types.proof_of_signature.len() > 0,
+                true
+            );
+            // Test Proof-of-Agreement
+            assert_eq!(
+                instance.proof_of_agreement_types.eip712_domain.len() > 0,
+                true
+            );
+            assert_eq!(
+                instance.proof_of_agreement_types.proof_of_agreement.len() > 0,
+                true
+            );
+        }
+
+        #[ink::test]
         fn hash() {
             let instance = DAOsignEIP712::new();
             assert_eq!(instance.hash(), [1; 32]);
