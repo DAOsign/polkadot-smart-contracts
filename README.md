@@ -9,3 +9,14 @@ cargo fmt
 ```
 cargo contract build
 ```
+
+## Test
+Normal
+```
+cargo test
+```
+
+With `debug_println!` output
+```
+cargo test -- --nocapture
+```

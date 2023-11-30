@@ -2,8 +2,10 @@
 
 #[ink::contract]
 mod daosign_eip712 {
+    use hex::FromHex;
     use ink::prelude::{string::String, vec::Vec};
     use scale::{Decode, Encode};
+    use tiny_keccak::{Hasher, Keccak};
 
     //
     // structs definitions
@@ -158,6 +160,7 @@ mod daosign_eip712 {
     pub struct DAOsignEIP712 {
         // bytes32 DOMAIN_HASH;
         // EIP712Domain domain;
+        eip712domain_typehash: [u8; 32],
         proof_of_authority_types: EIP712ProofOfAuthorityTypes,
         proof_of_signature_types: EIP712ProofOfSignatureTypes,
         proof_of_agreement_types: EIP712ProofOfAgreementTypes,
@@ -167,12 +170,22 @@ mod daosign_eip712 {
         #[ink(constructor)]
         pub fn new() -> Self {
             let mut instance = Self {
+                eip712domain_typehash: [0; 32],
                 proof_of_authority_types: EIP712ProofOfAuthorityTypes::default(),
                 proof_of_signature_types: EIP712ProofOfSignatureTypes::default(),
                 proof_of_agreement_types: EIP712ProofOfAgreementTypes::default(),
             };
+            instance.init_typehashes();
             instance.init_eip712_types();
             instance
+        }
+
+        fn init_typehashes(&mut self) -> () {
+            // EIP712DOMAIN_TYPEHASH
+            let eip712domain_string = "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)";
+            let mut keccak = Keccak::v256();
+            keccak.update(eip712domain_string.as_bytes());
+            keccak.finalize(&mut self.eip712domain_typehash);
         }
 
         fn init_eip712_types(&mut self) -> () {
@@ -319,6 +332,17 @@ mod daosign_eip712 {
         #[ink::test]
         fn constructor() {
             let instance = DAOsignEIP712::new();
+
+            // Test EIP712 domain typehash
+            let expected_eip712domain_typehash = <[u8; 32]>::from_hex(
+                "8b73c3c69bb8fe3d512ecc4cf759cc79239f7b179b0ffacaa9a75d522b39400f",
+            )
+            .unwrap();
+            assert_eq!(
+                instance.eip712domain_typehash,
+                expected_eip712domain_typehash
+            );
+
             // Test Proof-of-Authority
             assert_eq!(
                 instance.proof_of_authority_types.eip712_domain.len() > 0,
@@ -329,6 +353,7 @@ mod daosign_eip712 {
                 instance.proof_of_authority_types.proof_of_authority.len() > 0,
                 true
             );
+
             // Test Proof-of-Signature
             assert_eq!(
                 instance.proof_of_signature_types.eip712_domain.len() > 0,
@@ -338,6 +363,7 @@ mod daosign_eip712 {
                 instance.proof_of_signature_types.proof_of_signature.len() > 0,
                 true
             );
+
             // Test Proof-of-Agreement
             assert_eq!(
                 instance.proof_of_agreement_types.eip712_domain.len() > 0,
