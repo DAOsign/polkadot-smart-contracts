@@ -590,7 +590,6 @@ mod daosign_eip712 {
             // prepare timestamp
             let timestamp1: u64 = 1701975136;
             let timestamp1_bytes = timestamp1.to_be_bytes();
-            println!("{:?}", timestamp1_bytes);
             let mut timestamp1_arr: [u8; 32] = [0; 32];
             timestamp1_arr[24..].copy_from_slice(&timestamp1_bytes);
 
@@ -611,13 +610,6 @@ mod daosign_eip712 {
                 timestamp: timestamp1_arr,
                 metadata: String::from("proof metadata"),
             };
-            // println!("{:?}", data);
-            let hash1: [u8; 32] = instance.hash_proof_of_authority(data1.clone());
-            let hash1_string = hash1
-                .iter()
-                .map(|byte| format!("{:02x}", byte))
-                .collect::<String>();
-            println!("{:?}", hash1_string);
 
             let expected_hash1 = <[u8; 32]>::from_hex(
                 "982eeb361acc7f0d6402a812683b34e53f1e59f239fb32156e8b0bd2f9dfd039",
@@ -631,7 +623,6 @@ mod daosign_eip712 {
             // prepare timestamp
             let timestamp2: u64 = 1701975136;
             let timestamp2_bytes = timestamp2.to_be_bytes();
-            println!("{:?}", timestamp2_bytes);
             let mut timestamp2_arr: [u8; 32] = [0; 32];
             timestamp2_arr[24..].copy_from_slice(&timestamp2_bytes);
 
@@ -658,19 +649,81 @@ mod daosign_eip712 {
                 timestamp: timestamp2_arr,
                 metadata: String::from("proof metadata"),
             };
-            // println!("{:?}", data);
-            let hash2: [u8; 32] = instance.hash_proof_of_authority(data2.clone());
-            let hash2_string = hash2
-                .iter()
-                .map(|byte| format!("{:02x}", byte))
-                .collect::<String>();
-            println!("{:?}", hash2_string);
 
             let expected_hash2 = <[u8; 32]>::from_hex(
                 "7764e27376e6d1a8e28583b6bda4bdabce356f493348688fe3ec5d0344700935",
             )
             .unwrap();
             assert_eq!(instance.hash_proof_of_authority(data2), expected_hash2);
+        }
+
+        #[ink::test]
+        fn hash_proof_of_signature() {
+            let instance = DAOsignEIP712::new(EIP712Domain {
+                name: "daosign".into(),
+                version: "0.1.0".into(),
+                chain_id: [0; 32],
+                verifying_contract: [0; 32].into(),
+            });
+
+            // prepare timestamp
+            let timestamp1: u64 = 1701984120;
+            let timestamp1_bytes = timestamp1.to_be_bytes();
+            let mut timestamp1_arr: [u8; 32] = [0; 32];
+            timestamp1_arr[24..].copy_from_slice(&timestamp1_bytes);
+
+            // prepare signers
+            let signer1 = <[u8; 20]>::from_hex("f39fd6e51aad88f6f4ce6ab8827279cfffb92266").unwrap();
+            let mut signer1_arr: [u8; 32] = [0; 32];
+            signer1_arr[12..].copy_from_slice(&signer1);
+
+            let data1 = ProofOfSignature {
+                name: String::from("Proof-of-Signature"),
+                signer: signer1_arr,
+                agreement_cid: String::from("ProofOfAuthority proof cid                    "),
+                app: String::from("daosign"),
+                timestamp: timestamp1_arr,
+                metadata: String::from("proof metadata"),
+            };
+
+            let expected_hash1 = <[u8; 32]>::from_hex(
+                "73c2ba7034333fee702ce484bdc6c9d0229bc46f5593b557869e497e5045352c",
+            )
+            .unwrap();
+            assert_eq!(instance.hash_proof_of_signature(data1), expected_hash1);
+        }
+
+        #[ink::test]
+        fn hash_proof_of_agreement() {
+            let instance = DAOsignEIP712::new(EIP712Domain {
+                name: "daosign".into(),
+                version: "0.1.0".into(),
+                chain_id: [0; 32],
+                verifying_contract: [0; 32].into(),
+            });
+
+            // prepare timestamp
+            let timestamp1: u64 = 1701984586;
+            let timestamp1_bytes = timestamp1.to_be_bytes();
+            let mut timestamp1_arr: [u8; 32] = [0; 32];
+            timestamp1_arr[24..].copy_from_slice(&timestamp1_bytes);
+
+            let data1 = ProofOfAgreement {
+                agreement_cid: String::from("agreementCID                                  "),
+                signature_cids: Vec::from([
+                    String::from("signatureCID0                                 "),
+                    String::from("signatureCID1                                 "),
+                ]),
+                app: String::from("daosign"),
+                timestamp: timestamp1_arr,
+                metadata: String::from("metadata"),
+            };
+
+            let expected_hash1: [u8; 32] = <[u8; 32]>::from_hex(
+                "b5f4a49baad54521096e836a8dceefccf8e3d69ae39e0d5ea3860e31d98b6372",
+            )
+            .unwrap();
+            assert_eq!(instance.hash_proof_of_agreement(data1), expected_hash1);
         }
     }
 }
