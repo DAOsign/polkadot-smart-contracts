@@ -454,6 +454,63 @@ mod daosign_eip712 {
 
             account_id_bytes
         }
+
+        #[ink(message)]
+        pub fn recover_proof_of_authority(
+            &self,
+            data: ProofOfAuthority,
+            signature: [u8; 65],
+        ) -> [u8; 20] {
+            let packet_hash = self.hash_proof_of_authority(data);
+
+            // Encode the packet hash with the domain hash
+            let mut encoded = Vec::new();
+            encoded.extend_from_slice(b"\x19\x01");
+            encoded.extend_from_slice(&self.domain_hash);
+            encoded.extend_from_slice(&packet_hash);
+
+            let digest = Self::keccak_hash_bytes(&encoded);
+
+            self.recover(digest, signature)
+        }
+
+        #[ink(message)]
+        pub fn recover_proof_of_signature(
+            &self,
+            data: ProofOfSignature,
+            signature: [u8; 65],
+        ) -> [u8; 20] {
+            let packet_hash = self.hash_proof_of_signature(data);
+
+            // Encode the packet hash with the domain hash
+            let mut encoded = Vec::new();
+            encoded.extend_from_slice(b"\x19\x01");
+            encoded.extend_from_slice(&self.domain_hash);
+            encoded.extend_from_slice(&packet_hash);
+
+            let digest = Self::keccak_hash_bytes(&encoded);
+
+            self.recover(digest, signature)
+        }
+
+        #[ink(message)]
+        pub fn recover_proof_of_agreement(
+            &self,
+            data: ProofOfAgreement,
+            signature: [u8; 65],
+        ) -> [u8; 20] {
+            let packet_hash = self.hash_proof_of_agreement(data);
+
+            // Encode the packet hash with the domain hash
+            let mut encoded = Vec::new();
+            encoded.extend_from_slice(b"\x19\x01");
+            encoded.extend_from_slice(&self.domain_hash);
+            encoded.extend_from_slice(&packet_hash);
+
+            let digest = Self::keccak_hash_bytes(&encoded);
+
+            self.recover(digest, signature)
+        }
     }
 
     #[cfg(test)]
@@ -545,33 +602,6 @@ mod daosign_eip712 {
                 instance.proof_of_agreement_types.proof_of_agreement.len() > 0,
                 true
             );
-        }
-
-        #[ink::test]
-        fn recover() {
-            let instance = DAOsignEIP712::new(EIP712Domain {
-                name: "daosign".into(),
-                version: "0.1.0".into(),
-                chain_id: [0; 32],
-                verifying_contract: [0; 32].into(),
-            });
-
-            // Note: accounds, messages, and signatures are taken from DAOsign Solidity implementation
-            let signer_1 =
-                <[u8; 20]>::from_hex("f39fd6e51aad88f6f4ce6ab8827279cfffb92266").unwrap();
-            let message_1 = <[u8; 32]>::from_hex(
-                "b4ba9fa5bd01eac4ecd44891aaf6393135b1f6591d58ee35c6ed8ec659c8e70a",
-            )
-            .unwrap();
-            let signature_1 = <[u8; 65]>::from_hex("554077fec636b586196831bd072559673dc34af8aea2cd98b05de209934fa7f034c5bc8da3c314c0cc0fa94dd70e31406fbb167b52a8ac9d916d0d30275ed6b41b").unwrap();
-            let message_2 = <[u8; 32]>::from_hex(
-                "c95811b04c82d394fb0bce7b59316f7932db448a15cbae7d74f3f8df0284fe01",
-            )
-            .unwrap();
-            let signature_2 = <[u8; 65]>::from_hex("db447694c8688c5b057d131f90cde25ec656fee4467c78243063e98e37523799311df7f7527b6d3eba0c84d6d5faa9f257e837496890f545a2a4d10611ce6d331c").unwrap();
-
-            assert_eq!(instance.recover(message_1, signature_1), signer_1);
-            assert_eq!(instance.recover(message_2, signature_2), signer_1);
         }
 
         #[ink::test]
@@ -755,6 +785,147 @@ mod daosign_eip712 {
             )
             .unwrap();
             assert_eq!(instance.hash_proof_of_agreement(data2), expected_hash2);
+        }
+
+        #[ink::test]
+        fn recover() {
+            let instance = DAOsignEIP712::new(EIP712Domain {
+                name: "daosign".into(),
+                version: "0.1.0".into(),
+                chain_id: [0; 32],
+                verifying_contract: [0; 32].into(),
+            });
+
+            // Note: accounds, messages, and signatures are taken from DAOsign Solidity implementation
+            let signer_1 =
+                <[u8; 20]>::from_hex("f39fd6e51aad88f6f4ce6ab8827279cfffb92266").unwrap();
+            let message_1 = <[u8; 32]>::from_hex(
+                "b4ba9fa5bd01eac4ecd44891aaf6393135b1f6591d58ee35c6ed8ec659c8e70a",
+            )
+            .unwrap();
+            let signature_1 = <[u8; 65]>::from_hex("554077fec636b586196831bd072559673dc34af8aea2cd98b05de209934fa7f034c5bc8da3c314c0cc0fa94dd70e31406fbb167b52a8ac9d916d0d30275ed6b41b").unwrap();
+            let message_2 = <[u8; 32]>::from_hex(
+                "c95811b04c82d394fb0bce7b59316f7932db448a15cbae7d74f3f8df0284fe01",
+            )
+            .unwrap();
+            let signature_2 = <[u8; 65]>::from_hex("db447694c8688c5b057d131f90cde25ec656fee4467c78243063e98e37523799311df7f7527b6d3eba0c84d6d5faa9f257e837496890f545a2a4d10611ce6d331c").unwrap();
+
+            assert_eq!(instance.recover(message_1, signature_1), signer_1);
+            assert_eq!(instance.recover(message_2, signature_2), signer_1);
+        }
+
+        #[ink::test]
+        fn recover_proof_of_authority() {
+            let instance = DAOsignEIP712::new(EIP712Domain {
+                name: "daosign".into(),
+                version: "0.1.0".into(),
+                chain_id: [0; 32],
+                verifying_contract: [0; 32].into(),
+            });
+
+            // prepare timestamp
+            let timestamp1: u64 = 1701990045;
+            let timestamp1_bytes = timestamp1.to_be_bytes();
+            let mut timestamp1_arr: [u8; 32] = [0; 32];
+            timestamp1_arr[24..].copy_from_slice(&timestamp1_bytes);
+
+            // prepare signer & signature
+            let signer1 = <[u8; 20]>::from_hex("f39fd6e51aad88f6f4ce6ab8827279cfffb92266").unwrap();
+            let signature1 = <[u8; 65]>::from_hex("65cc7b7ba2a2c61cddd5522a65e0a01fc8b5e0846adc743cf7874bc99a68f76072439f0eac2d61e9d4f59b8e8c40c35c50d645d2c2ea6cb2cfed34e0c05373b01b").unwrap();
+            let mut signer1_arr: [u8; 32] = [0; 32];
+            signer1_arr[12..].copy_from_slice(&signer1);
+
+            let message1 = ProofOfAuthority {
+                name: String::from("Proof-of-Authority"),
+                from: signer1_arr,
+                agreement_cid: String::from("agreementCID                                  "),
+                signers: Vec::from([Signer {
+                    addr: signer1_arr,
+                    metadata: String::from("metadata"),
+                }]),
+                app: String::from("daosign"),
+                timestamp: timestamp1_arr,
+                metadata: String::from("metadatas"),
+            };
+
+            assert_eq!(
+                instance.recover_proof_of_authority(message1, signature1),
+                signer1
+            );
+        }
+
+        #[ink::test]
+        fn recover_proof_of_signature() {
+            let instance = DAOsignEIP712::new(EIP712Domain {
+                name: "daosign".into(),
+                version: "0.1.0".into(),
+                chain_id: [0; 32],
+                verifying_contract: [0; 32].into(),
+            });
+
+            // prepare timestamp
+            let timestamp1: u64 = 1701990355;
+            let timestamp1_bytes = timestamp1.to_be_bytes();
+            let mut timestamp1_arr: [u8; 32] = [0; 32];
+            timestamp1_arr[24..].copy_from_slice(&timestamp1_bytes);
+
+            // prepare signer & signature
+            let signer1 = <[u8; 20]>::from_hex("f39fd6e51aad88f6f4ce6ab8827279cfffb92266").unwrap();
+            let signature1 = <[u8; 65]>::from_hex("acc5ef63564dcb4273272e9e52fb6ab585cfdf366187c1ff26c55d028fccad4803e9ed36739373c2ea4c27123fbc4a07504fd0512379a13a590f80213bb81e6b1b").unwrap();
+            let mut signer1_arr: [u8; 32] = [0; 32];
+            signer1_arr[12..].copy_from_slice(&signer1);
+
+            let message1 = ProofOfSignature {
+                name: String::from("Proof-of-Signature"),
+                signer: signer1_arr,
+                agreement_cid: String::from("agreementCID                                  "),
+                app: String::from("daosign"),
+                timestamp: timestamp1_arr,
+                metadata: String::from("metadata"),
+            };
+
+            assert_eq!(
+                instance.recover_proof_of_signature(message1, signature1),
+                signer1
+            );
+        }
+
+        #[ink::test]
+        fn recover_proof_of_agreement() {
+            let instance = DAOsignEIP712::new(EIP712Domain {
+                name: "daosign".into(),
+                version: "0.1.0".into(),
+                chain_id: [0; 32],
+                verifying_contract: [0; 32].into(),
+            });
+
+            // prepare timestamp
+            let timestamp1: u64 = 1701990469;
+            let timestamp1_bytes = timestamp1.to_be_bytes();
+            let mut timestamp1_arr: [u8; 32] = [0; 32];
+            timestamp1_arr[24..].copy_from_slice(&timestamp1_bytes);
+
+            // prepare signer & signature
+            let signer1 = <[u8; 20]>::from_hex("f39fd6e51aad88f6f4ce6ab8827279cfffb92266").unwrap();
+            let signature1 = <[u8; 65]>::from_hex("7a6510c1ee7785a2019ea2ad009086fea5a3baa25f349c00a14707891ff9d0752c90a694d342010b52975501acf7f98abbe7640e8d685e73608118212eac432f1b").unwrap();
+            let mut signer1_arr: [u8; 32] = [0; 32];
+            signer1_arr[12..].copy_from_slice(&signer1);
+
+            let message1 = ProofOfAgreement {
+                agreement_cid: String::from("agreementCID                                  "),
+                signature_cids: Vec::from([
+                    String::from("signatureCID0                                 "),
+                    String::from("signatureCID1                                 "),
+                ]),
+                app: String::from("daosign"),
+                timestamp: timestamp1_arr,
+                metadata: String::from("metadata"),
+            };
+
+            assert_eq!(
+                instance.recover_proof_of_agreement(message1, signature1),
+                signer1
+            );
         }
     }
 }
