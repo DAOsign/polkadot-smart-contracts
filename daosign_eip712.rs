@@ -702,6 +702,10 @@ mod daosign_eip712 {
                 verifying_contract: [0; 32].into(),
             });
 
+            //
+            // Simple Proof-of-Agreement
+            //
+
             // prepare timestamp
             let timestamp1: u64 = 1701984586;
             let timestamp1_bytes = timestamp1.to_be_bytes();
@@ -724,6 +728,33 @@ mod daosign_eip712 {
             )
             .unwrap();
             assert_eq!(instance.hash_proof_of_agreement(data1), expected_hash1);
+
+            //
+            // Looong metadata test + the same CIDs
+            //
+
+            // prepare timestamp
+            let timestamp2: u64 = 1701984586;
+            let timestamp2_bytes = timestamp2.to_be_bytes();
+            let mut timestamp2_arr: [u8; 32] = [0; 32];
+            timestamp2_arr[24..].copy_from_slice(&timestamp2_bytes);
+
+            let data2 = ProofOfAgreement {
+                agreement_cid: String::from("signatureCID0                                 "),
+                signature_cids: Vec::from([
+                    String::from("signatureCID0                                 "),
+                    String::from("signatureCID0                                 "),
+                ]),
+                app: String::from("daosign"),
+                timestamp: timestamp2_arr,
+                metadata: String::from("[{'constant':true,'inputs':[],'name':'name','outputs':[{'name':'','type':'string'}],'payable':false,'stateMutability':'view','type':'function'},{'constant':false,'inputs':[{'name':'_spender','type':'address'},{'name':'_value','type':'uint256'}],'name':'approve','outputs':[{'name':'','type':'bool'}],'payable':false,'stateMutability':'nonpayable','type':'function'},{'constant':true,'inputs':[],'name':'totalSupply','outputs':[{'name':'','type':'uint256'}],'payable':false,'stateMutability':'view','type':'function'},{'constant':false,'inputs':[{'name':'_from','type':'address'},{'name':'_to','type':'address'},{'name':'_value','type':'uint256'}],'name':'transferFrom','outputs':[{'name':'','type':'bool'}],'payable':false,'stateMutability':'nonpayable','type':'function'},{'constant':true,'inputs':[],'name':'decimals','outputs':[{'name':'','type':'uint8'}],'payable':false,'stateMutability':'view','type':'function'},{'constant':true,'inputs':[{'name':'_owner','type':'address'}],'name':'balanceOf','outputs':[{'name':'balance','type':'uint256'}],'payable':false,'stateMutability':'view','type':'function'},{'constant':true,'inputs':[],'name':'symbol','outputs':[{'name':'','type':'string'}],'payable':false,'stateMutability':'view','type':'function'},{'constant':false,'inputs':[{'name':'_to','type':'address'},{'name':'_value','type':'uint256'}],'name':'transfer','outputs':[{'name':'','type':'bool'}],'payable':false,'stateMutability':'nonpayable','type':'function'},{'constant':true,'inputs':[{'name':'_owner','type':'address'},{'name':'_spender','type':'address'}],'name':'allowance','outputs':[{'name':'','type':'uint256'}],'payable':false,'stateMutability':'view','type':'function'},{'payable':true,'stateMutability':'payable','type':'fallback'},{'anonymous':false,'inputs':[{'indexed':true,'name':'owner','type':'address'},{'indexed':true,'name':'spender','type':'address'},{'indexed':false,'name':'value','type':'uint256'}],'name':'Approval','type':'event'},{'anonymous':false,'inputs':[{'indexed':true,'name':'from','type':'address'},{'indexed':true,'name':'to','type':'address'},{'indexed':false,'name':'value','type':'uint256'}],'name':'Transfer','type':'event'}]"),
+            };
+
+            let expected_hash2: [u8; 32] = <[u8; 32]>::from_hex(
+                "7732dfecbf18bf462c5c246643b734fa0d31f785f55de7c970e64bf0092f0a46",
+            )
+            .unwrap();
+            assert_eq!(instance.hash_proof_of_agreement(data2), expected_hash2);
         }
     }
 }
