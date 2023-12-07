@@ -166,6 +166,7 @@ mod daosign_eip712 {
     #[ink(storage)]
     pub struct DAOsignEIP712 {
         domain_hash: [u8; 32],
+        domain: EIP712Domain,
         eip712domain_typehash: [u8; 32],
         signer_typehash: [u8; 32],
         proof_of_authority_typehash: [u8; 32],
@@ -181,6 +182,7 @@ mod daosign_eip712 {
         pub fn new(domain: EIP712Domain) -> Self {
             let mut instance = Self {
                 domain_hash: [0; 32],
+                domain: domain.clone(),
                 eip712domain_typehash: [0; 32],
                 signer_typehash: [0; 32],
                 proof_of_authority_typehash: [0; 32],
@@ -510,6 +512,45 @@ mod daosign_eip712 {
             let digest = Self::keccak_hash_bytes(&encoded);
 
             self.recover(digest, signature)
+        }
+
+        #[ink(message)]
+        pub fn to_eip712_message_proof_of_authority(
+            &self,
+            message: ProofOfAuthority,
+        ) -> EIP712ProofOfAuthority {
+            EIP712ProofOfAuthority {
+                types: self.proof_of_authority_types.clone(),
+                domain: self.domain.clone(),
+                primary_type: "ProofOfAuthority".to_string(),
+                message,
+            }
+        }
+
+        #[ink(message)]
+        pub fn to_eip712_message_proof_of_signature(
+            &self,
+            message: ProofOfSignature,
+        ) -> EIP712ProofOfSignature {
+            EIP712ProofOfSignature {
+                types: self.proof_of_signature_types.clone(),
+                domain: self.domain.clone(),
+                primary_type: "ProofOfSignature".to_string(),
+                message,
+            }
+        }
+
+        #[ink(message)]
+        pub fn to_eip712_message_proof_of_agreement(
+            &self,
+            message: ProofOfAgreement,
+        ) -> EIP712ProofOfAgreement {
+            EIP712ProofOfAgreement {
+                types: self.proof_of_agreement_types.clone(),
+                domain: self.domain.clone(),
+                primary_type: "ProofOfAgreement".to_string(),
+                message,
+            }
         }
     }
 
