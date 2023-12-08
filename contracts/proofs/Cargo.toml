@@ -1,0 +1,31 @@
+[package]
+name = "proofs"
+version = "0.1.0"
+authors = ["Misha Kushka, CIDT <https://consideritdone.tech>"]
+edition = "2021"
+
+[dependencies]
+ink = { version = "4.2.0", default-features = false }
+ink_env = { version = "4.3.0", default-features = false, features=["ink-debug"] }
+
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+scale-info = { version = "2.6", default-features = false, features = ["derive"], optional = true }
+
+proofs_metadata = { path = "../proofs_metadata", default-features = false, features = ["ink-as-dependency"] }
+
+[dev-dependencies]
+ink_e2e = "4.2.0"
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    "scale/std",
+    "scale-info/std",
+    "proofs_metadata/std",
+]
+ink-as-dependency = []
+e2e-tests = []
