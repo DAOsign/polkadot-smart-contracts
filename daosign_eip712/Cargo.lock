@@ -1109,7 +1109,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "daosign_proofs"
+name = "daosign_eip712"
 version = "0.1.0"
 dependencies = [
  "hex",
