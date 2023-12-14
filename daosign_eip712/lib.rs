@@ -1,7 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
-mod daosign_eip712 {
+pub mod daosign_eip712 {
     use hex::FromHex;
     use ink::prelude::{string::String, vec::Vec};
     use scale::{Decode, Encode};
@@ -17,14 +17,14 @@ mod daosign_eip712 {
         derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
     )]
     pub struct EIP712Domain {
-        name: String,
-        version: String,
+        pub name: String,
+        pub version: String,
         // As max size in Rust is u128 comparing to u256 in Solidity, chain_id is defined as an
         // array of u8 of size 32 rather than u128. This is done to not loose precision
-        chain_id: [u8; 32],
+        pub chain_id: [u8; 32],
         // As we're storing Solidity address here (and in other structs), we will use [u8; 32]
         // instead of AccountId
-        verifying_contract: [u8; 32],
+        pub verifying_contract: [u8; 32],
     }
 
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
@@ -163,6 +163,7 @@ mod daosign_eip712 {
     // DAOsignEIP712 contract
     //
 
+    #[derive(Debug)]
     #[ink(storage)]
     pub struct DAOsignEIP712 {
         domain_hash: [u8; 32],
@@ -357,6 +358,11 @@ mod daosign_eip712 {
     }
 
     impl DAOsignEIP712 {
+        #[ink(message)]
+        pub fn plus1(&self, x: u128) -> u128 {
+            x + 1
+        }
+
         #[ink(message)]
         pub fn hash_domain(&self, data: EIP712Domain) -> [u8; 32] {
             let mut encoded_data = Vec::new();
