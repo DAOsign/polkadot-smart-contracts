@@ -33,8 +33,8 @@ pub mod daosign_eip712 {
         derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
     )]
     pub struct Signer {
-        addr: [u8; 32],
-        metadata: String,
+        pub addr: [u8; 32],
+        pub metadata: String,
     }
 
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
@@ -43,14 +43,14 @@ pub mod daosign_eip712 {
         derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
     )]
     pub struct ProofOfAuthority {
-        name: String,
-        from: [u8; 32],
-        agreement_cid: String,
-        signers: Vec<Signer>,
-        app: String,
+        pub name: String,
+        pub from: [u8; 32],
+        pub agreement_cid: String,
+        pub signers: Vec<Signer>,
+        pub app: String,
         // As Rust doesn't have u256 type as in Solidity, we're using [u8; 32] here
-        timestamp: [u8; 32],
-        metadata: String,
+        pub timestamp: [u8; 32],
+        pub metadata: String,
     }
 
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
@@ -59,13 +59,13 @@ pub mod daosign_eip712 {
         derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
     )]
     pub struct ProofOfSignature {
-        name: String,
-        signer: [u8; 32],
-        agreement_cid: String,
-        app: String,
+        pub name: String,
+        pub signer: [u8; 32],
+        pub agreement_cid: String,
+        pub app: String,
         // As Rust doesn't have u256 type as in Solidity, we're using [u8; 32] here
-        timestamp: [u8; 32],
-        metadata: String,
+        pub timestamp: [u8; 32],
+        pub metadata: String,
     }
 
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
@@ -74,12 +74,12 @@ pub mod daosign_eip712 {
         derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
     )]
     pub struct ProofOfAgreement {
-        agreement_cid: String,
-        signature_cids: Vec<String>,
-        app: String,
+        pub agreement_cid: String,
+        pub signature_cids: Vec<String>,
+        pub app: String,
         // As Rust doesn't have u256 type as in Solidity, we're using [u8; 32] here
-        timestamp: [u8; 32],
-        metadata: String,
+        pub timestamp: [u8; 32],
+        pub metadata: String,
     }
 
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
@@ -166,8 +166,8 @@ pub mod daosign_eip712 {
     #[derive(Debug)]
     #[ink(storage)]
     pub struct DAOsignEIP712 {
-        domain_hash: [u8; 32],
         domain: EIP712Domain,
+        domain_hash: [u8; 32],
         eip712domain_typehash: [u8; 32],
         signer_typehash: [u8; 32],
         proof_of_authority_typehash: [u8; 32],
