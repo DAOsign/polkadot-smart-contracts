@@ -120,6 +120,7 @@ pub mod daosign_app {
                 "Invalid message"
             );
 
+            // Store
             self.poaus.insert(data.proof_cid.clone(), &data.clone());
 
             // Update the signer indices and push new signers
@@ -131,6 +132,48 @@ pub mod daosign_app {
             // Update proof to signer mapping
             self.proof2signer
                 .insert(data.proof_cid.clone(), &data.message.from);
+
+            // TODO: emit event
+        }
+
+        #[ink(message)]
+        pub fn store_proof_of_signature(&mut self, data: SignedProofOfSignature) {
+            // convert address stored in 32 bytes to 20 bytes
+            let from_arr20: [u8; 20] = data.message.signer[12..].try_into().unwrap();
+            assert!(
+                self.eip712.recover_proof_of_signature(
+                    data.message.clone(),
+                    DAOsignApp::vec_to_array(data.signature.clone()).unwrap()
+                ) == from_arr20,
+                "Invalid signature"
+            );
+
+            // Validate the data
+            assert!(
+                self.validate_signed_proof_of_signature(data.clone()),
+                "Invalid message"
+            );
+
+            // Store
+            self.posis.insert(data.proof_cid.clone(), &data.clone());
+
+            // Update proof to signer mapping
+            self.proof2signer
+                .insert(data.proof_cid.clone(), &data.message.signer);
+
+            // TODO: emit event
+        }
+
+        #[ink(message)]
+        pub fn store_proof_of_agreement(&mut self, data: SignedProofOfAgreement) {
+            // Validate the data
+            assert!(
+                self.validate_signed_proof_of_agreement(data.clone()),
+                "Invalid message"
+            );
+
+            // Store
+            self.poags.insert(data.proof_cid.clone(), &data.clone());
 
             // TODO: emit event
         }
