@@ -311,6 +311,33 @@ pub mod daosign_app {
             });
         }
 
+        fn store_proof_of_signature(instance: &mut DAOsignApp) {
+            let timestamp: u64 = 1702609048;
+            let timestamp_bytes = timestamp.to_be_bytes();
+            let mut timestamp_arr: [u8; 32] = [0; 32];
+            timestamp_arr[24..].copy_from_slice(&timestamp_bytes);
+
+            let signer = <[u8; 20]>::from_hex("f39Fd6e51aad88F6F4ce6aB8827279cffFb92266").unwrap();
+            let mut signer_arr: [u8; 32] = [0; 32];
+            signer_arr[12..].copy_from_slice(&signer);
+
+            let signature = <[u8; 65]>::from_hex("3873d49c83039d1624ec52ee6f6edbe0d31105a7aebcd1304e8326adc0807c3e692efc2b302370dbc0c7ea44904130e3468ff34ff1eaf65613ad8ba6db9405e31c").unwrap();
+            let proof_cid = String::from("ProofOfSignature proof cid                    ");
+
+            instance.store_proof_of_signature(SignedProofOfSignature {
+                message: ProofOfSignature {
+                    name: String::from("Proof-of-Signature"),
+                    signer: signer_arr,
+                    agreement_cid: String::from("ProofOfAuthority proof cid                    "),
+                    app: String::from("daosign"),
+                    timestamp: timestamp_arr,
+                    metadata: String::from("proof metadata"),
+                },
+                signature: signature.to_vec(),
+                proof_cid: proof_cid.clone(),
+            });
+        }
+
         #[ink::test]
         fn test_store_proof_of_authority() {
             let mut instance = DAOsignApp::new(EIP712Domain {
@@ -440,7 +467,12 @@ pub mod daosign_app {
             //
             // Pre-test
             //
+
             store_proof_of_authority(&mut instance);
+
+            //
+            // Test
+            //
 
             let timestamp: u64 = 1702609048;
             let timestamp_bytes = timestamp.to_be_bytes();
@@ -467,59 +499,162 @@ pub mod daosign_app {
                 proof_cid: proof_cid.clone(),
             });
 
-            // assert_eq!(
-            //     instance.posis.get(proof_cid.clone()).unwrap().signature,
-            //     signature
-            // );
-            // assert_eq!(
-            //     instance.posis.get(proof_cid.clone()).unwrap().proof_cid,
-            //     proof_cid.clone()
-            // );
+            assert_eq!(
+                instance.posis.get(proof_cid.clone()).unwrap().signature,
+                signature
+            );
+            assert_eq!(
+                instance.posis.get(proof_cid.clone()).unwrap().proof_cid,
+                proof_cid.clone()
+            );
 
-            // assert_eq!(
-            //     instance.posis.get(proof_cid.clone()).unwrap().message.name,
-            //     String::from("Proof-of-Signature")
-            // );
-            // assert_eq!(
-            //     instance
-            //         .posis
-            //         .get(proof_cid.clone())
-            //         .unwrap()
-            //         .message
-            //         .signer,
-            //     signer_arr
-            // );
-            // assert_eq!(
-            //     instance
-            //         .posis
-            //         .get(proof_cid.clone())
-            //         .unwrap()
-            //         .message
-            //         .agreement_cid,
-            //     String::from("ProofOfAuthority proof cid                    ")
-            // );
-            // assert_eq!(
-            //     instance.posis.get(proof_cid.clone()).unwrap().message.app,
-            //     String::from("daosign")
-            // );
-            // assert_eq!(
-            //     instance
-            //         .posis
-            //         .get(proof_cid.clone())
-            //         .unwrap()
-            //         .message
-            //         .timestamp,
-            //     timestamp_arr
-            // );
-            // assert_eq!(
-            //     instance
-            //         .posis
-            //         .get(proof_cid.clone())
-            //         .unwrap()
-            //         .message
-            //         .metadata,
-            //     String::from("ProofOfSignature proof cid                    ")
-            // );
+            assert_eq!(
+                instance.posis.get(proof_cid.clone()).unwrap().message.name,
+                String::from("Proof-of-Signature")
+            );
+            assert_eq!(
+                instance
+                    .posis
+                    .get(proof_cid.clone())
+                    .unwrap()
+                    .message
+                    .signer,
+                signer_arr
+            );
+            assert_eq!(
+                instance
+                    .posis
+                    .get(proof_cid.clone())
+                    .unwrap()
+                    .message
+                    .agreement_cid,
+                String::from("ProofOfAuthority proof cid                    ")
+            );
+            assert_eq!(
+                instance.posis.get(proof_cid.clone()).unwrap().message.app,
+                String::from("daosign")
+            );
+            assert_eq!(
+                instance
+                    .posis
+                    .get(proof_cid.clone())
+                    .unwrap()
+                    .message
+                    .timestamp,
+                timestamp_arr
+            );
+            assert_eq!(
+                instance
+                    .posis
+                    .get(proof_cid.clone())
+                    .unwrap()
+                    .message
+                    .metadata,
+                String::from("proof metadata")
+            );
+        }
+
+        #[ink::test]
+        fn test_store_proof_of_agreement() {
+            let mut instance = DAOsignApp::new(EIP712Domain {
+                name: "daosign".into(),
+                version: "0.1.0".into(),
+                chain_id: [0; 32],
+                verifying_contract: [0; 32].into(),
+            });
+
+            //
+            // Pre-test
+            //
+
+            store_proof_of_authority(&mut instance);
+            store_proof_of_signature(&mut instance);
+
+            //
+            // Test
+            //
+
+            let timestamp: u64 = 1702609773;
+            let timestamp_bytes = timestamp.to_be_bytes();
+            let mut timestamp_arr: [u8; 32] = [0; 32];
+            timestamp_arr[24..].copy_from_slice(&timestamp_bytes);
+
+            let signature = <[u8; 65]>::from_hex("4f43008200f6dea8f74ec205d874593885872158406c2ef0f71dbe2459ba9118667d10451069d5015fc005c88b2337240c8f02edf904e08b4abf723dc20998a91b").unwrap();
+            let proof_cid = String::from("ProofOfAgreement proof cid                    ");
+
+            instance.store_proof_of_agreement(SignedProofOfAgreement {
+                message: ProofOfAgreement {
+                    agreement_cid: String::from("ProofOfAuthority proof cid                    "),
+                    signature_cids: Vec::from([String::from(
+                        "ProofOfSignature proof cid                    ",
+                    )]),
+                    app: String::from("daosign"),
+                    timestamp: timestamp_arr,
+                    metadata: String::from("proof metadata"),
+                },
+                signature: signature.to_vec(),
+                proof_cid: proof_cid.clone(),
+            });
+
+            assert_eq!(
+                instance.poags.get(proof_cid.clone()).unwrap().signature,
+                signature
+            );
+            assert_eq!(
+                instance.poags.get(proof_cid.clone()).unwrap().proof_cid,
+                proof_cid.clone()
+            );
+
+            assert_eq!(
+                instance
+                    .poags
+                    .get(proof_cid.clone())
+                    .unwrap()
+                    .message
+                    .agreement_cid,
+                String::from("ProofOfAuthority proof cid                    ")
+            );
+            assert_eq!(
+                instance
+                    .poags
+                    .get(proof_cid.clone())
+                    .unwrap()
+                    .message
+                    .signature_cids
+                    .len(),
+                1
+            );
+            assert_eq!(
+                instance
+                    .poags
+                    .get(proof_cid.clone())
+                    .unwrap()
+                    .message
+                    .signature_cids[0],
+                String::from("ProofOfSignature proof cid                    ")
+            );
+            assert_eq!(
+                instance.poags.get(proof_cid.clone()).unwrap().message.app,
+                String::from("daosign")
+            );
+            assert_eq!(
+                instance
+                    .poags
+                    .get(proof_cid.clone())
+                    .unwrap()
+                    .message
+                    .timestamp,
+                timestamp_arr
+            );
+            assert_eq!(
+                instance
+                    .poags
+                    .get(proof_cid.clone())
+                    .unwrap()
+                    .message
+                    .metadata,
+                String::from("proof metadata")
+            );
         }
     }
 }
