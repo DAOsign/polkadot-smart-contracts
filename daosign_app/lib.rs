@@ -78,6 +78,17 @@ pub mod daosign_app {
     }
 
     impl DAOsignApp {
+        fn vec_to_array(vec: Vec<u8>) -> Result<[u8; 65], &'static str> {
+            if vec.len() == 65 {
+                let array: [u8; 65] = vec.try_into().map_err(|_| "Conversion failed")?;
+                Ok(array)
+            } else {
+                Err("Vector does not have exactly 65 elements")
+            }
+        }
+    }
+
+    impl DAOsignApp {
         #[ink(constructor)]
         pub fn new(domain: EIP712Domain) -> Self {
             let eip712 = DAOsignEIP712::new(domain);
@@ -94,6 +105,39 @@ pub mod daosign_app {
         #[ink(message)]
         pub fn plus3(&self, x: u128) -> u128 {
             self.eip712.plus1(x) + 2
+        }
+
+        #[ink(message)]
+        pub fn store_proof_of_authority(&mut self, data: SignedProofOfAuthority) {
+            // convert address stored in 32 bytes to 20 bytes
+            let from_arr20: [u8; 20] = data.message.from[12..].try_into().unwrap();
+            assert!(
+                self.eip712.recover_proof_of_authority(
+                    data.message.clone(),
+                    DAOsignApp::vec_to_array(data.signature.clone()).unwrap()
+                ) == from_arr20,
+                "Invalid signature"
+            );
+
+            // Validate the data
+            assert!(
+                self.validate_signed_proof_of_authority(data.clone()),
+                "Invalid message"
+            );
+
+            self.poaus.insert(data.proof_cid.clone(), &data.clone());
+
+            // Update the signer indices and push new signers
+            for (i, signer) in data.message.signers.iter().enumerate() {
+                self.poau_signers_idx
+                    .insert((data.proof_cid.clone(), signer.addr), &(i as u32));
+            }
+
+            // Update proof to signer mapping
+            self.proof2signer
+                .insert(data.proof_cid.clone(), &data.message.from);
+
+            // TODO: emit event
         }
 
         #[ink(message)]
