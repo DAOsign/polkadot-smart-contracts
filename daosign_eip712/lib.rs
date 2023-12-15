@@ -2,7 +2,6 @@
 
 #[ink::contract]
 pub mod daosign_eip712 {
-    use hex::FromHex;
     use ink::prelude::{string::String, vec::Vec};
     use scale::{Decode, Encode};
     use tiny_keccak::{Hasher, Keccak};
@@ -359,11 +358,6 @@ pub mod daosign_eip712 {
 
     impl DAOsignEIP712 {
         #[ink(message)]
-        pub fn plus1(&self, x: u128) -> u128 {
-            x + 1
-        }
-
-        #[ink(message)]
         pub fn hash_domain(&self, data: EIP712Domain) -> [u8; 32] {
             let mut encoded_data = Vec::new();
 
@@ -563,6 +557,7 @@ pub mod daosign_eip712 {
     #[cfg(test)]
     mod tests {
         use super::*;
+        use hex::FromHex;
 
         #[ink::test]
         fn constructor() {
