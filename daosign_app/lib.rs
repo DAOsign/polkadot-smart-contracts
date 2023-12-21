@@ -67,6 +67,21 @@ pub mod daosign_app {
     // DAOsignApp contract
     //
 
+    #[ink(event)]
+    pub struct NewProofOfAuthority {
+        data: SignedProofOfAuthority,
+    }
+
+    #[ink(event)]
+    pub struct NewProofOfSignature {
+        data: SignedProofOfSignature,
+    }
+
+    #[ink(event)]
+    pub struct NewProofOfAgreement {
+        data: SignedProofOfAgreement,
+    }
+
     #[ink(storage)]
     pub struct DAOsignApp {
         eip712: DAOsignEIP712,
@@ -133,7 +148,7 @@ pub mod daosign_app {
             self.proof2signer
                 .insert(data.proof_cid.clone(), &data.message.from);
 
-            // TODO: emit event
+            Self::env().emit_event(NewProofOfAuthority { data });
         }
 
         #[ink(message)]
@@ -161,7 +176,7 @@ pub mod daosign_app {
             self.proof2signer
                 .insert(data.proof_cid.clone(), &data.message.signer);
 
-            // TODO: emit event
+            Self::env().emit_event(NewProofOfSignature { data });
         }
 
         #[ink(message)]
@@ -175,10 +190,24 @@ pub mod daosign_app {
             // Store
             self.poags.insert(data.proof_cid.clone(), &data.clone());
 
-            // TODO: emit event
+            Self::env().emit_event(NewProofOfAgreement { data });
         }
 
         #[ink(message)]
+        pub fn get_proof_of_authority(&self, cid: String) -> SignedProofOfAuthority {
+            self.poaus.get(cid).unwrap()
+        }
+
+        #[ink(message)]
+        pub fn get_proof_of_signature(&self, cid: String) -> SignedProofOfSignature {
+            self.posis.get(cid).unwrap()
+        }
+
+        #[ink(message)]
+        pub fn get_proof_of_agreement(&self, cid: String) -> SignedProofOfAgreement {
+            self.poags.get(cid).unwrap()
+        }
+
         pub fn validate_signed_proof_of_authority(&self, data: SignedProofOfAuthority) -> bool {
             assert!(data.proof_cid.len() == IPFS_CID_LENGTH, "Invalid proof CID");
             assert!(data.message.app == "daosign", "Invalid app name");
@@ -196,7 +225,6 @@ pub mod daosign_app {
             true
         }
 
-        #[ink(message)]
         pub fn validate_signed_proof_of_signature(&self, data: SignedProofOfSignature) -> bool {
             assert!(data.proof_cid.len() == IPFS_CID_LENGTH, "Invalid proof CID");
             assert!(data.message.app == "daosign", "Invalid app name");
@@ -225,7 +253,6 @@ pub mod daosign_app {
             true
         }
 
-        #[ink(message)]
         pub fn validate_signed_proof_of_agreement(&self, data: SignedProofOfAgreement) -> bool {
             assert!(data.proof_cid.len() == IPFS_CID_LENGTH, "Invalid proof CID");
             assert!(data.message.app == "daosign", "Invalid app name");
@@ -272,21 +299,6 @@ pub mod daosign_app {
             }
 
             true
-        }
-
-        #[ink(message)]
-        pub fn get_proof_of_authority(&self, cid: String) -> SignedProofOfAuthority {
-            self.poaus.get(cid).unwrap()
-        }
-
-        #[ink(message)]
-        pub fn get_proof_of_signature(&self, cid: String) -> SignedProofOfSignature {
-            self.posis.get(cid).unwrap()
-        }
-
-        #[ink(message)]
-        pub fn get_proof_of_agreement(&self, cid: String) -> SignedProofOfAgreement {
-            self.poags.get(cid).unwrap()
         }
     }
 
@@ -399,7 +411,7 @@ pub mod daosign_app {
             let signature = <[u8; 65]>::from_hex("130561fa55cda78e5a9ac0cb96e76409fa5112a39422604b043580a559a2a352641f71fe278c74192594c27d3d7c5b7f7995e63bd0ddc96124ae8532fe51d9111c").unwrap();
             let proof_cid = String::from("ProofOfAuthority proof cid                    ");
 
-            instance.store_proof_of_authority(SignedProofOfAuthority {
+            let data = SignedProofOfAuthority {
                 message: ProofOfAuthority {
                     name: String::from("Proof-of-Authority"),
                     from: from_arr,
@@ -414,7 +426,8 @@ pub mod daosign_app {
                 },
                 signature: signature.to_vec(),
                 proof_cid: proof_cid.clone(),
-            });
+            };
+            instance.store_proof_of_authority(data.clone());
 
             assert_eq!(
                 instance.poaus.get(proof_cid.clone()).unwrap().signature,
@@ -493,6 +506,13 @@ pub mod daosign_app {
                     .metadata,
                 String::from("proof metadata")
             );
+
+            // Test emitted event
+            let mut events = ink::env::test::recorded_events();
+            let event = events.next().unwrap();
+            let mut ev_data = event.data;
+            ev_data.remove(0);
+            assert_eq!(data.encode(), ev_data);
         }
 
         #[ink::test]
@@ -526,7 +546,7 @@ pub mod daosign_app {
             let signature = <[u8; 65]>::from_hex("3873d49c83039d1624ec52ee6f6edbe0d31105a7aebcd1304e8326adc0807c3e692efc2b302370dbc0c7ea44904130e3468ff34ff1eaf65613ad8ba6db9405e31c").unwrap();
             let proof_cid = String::from("ProofOfSignature proof cid                    ");
 
-            instance.store_proof_of_signature(SignedProofOfSignature {
+            let data = SignedProofOfSignature {
                 message: ProofOfSignature {
                     name: String::from("Proof-of-Signature"),
                     signer: signer_arr,
@@ -537,7 +557,8 @@ pub mod daosign_app {
                 },
                 signature: signature.to_vec(),
                 proof_cid: proof_cid.clone(),
-            });
+            };
+            instance.store_proof_of_signature(data.clone());
 
             assert_eq!(
                 instance.posis.get(proof_cid.clone()).unwrap().signature,
@@ -592,6 +613,14 @@ pub mod daosign_app {
                     .metadata,
                 String::from("proof metadata")
             );
+
+            // Test emitted event
+            let mut events = ink::env::test::recorded_events();
+            events.next(); // skipping NewProofOfAuthority event
+            let event = events.next().unwrap();
+            let mut ev_data = event.data;
+            ev_data.remove(0);
+            assert_eq!(data.encode(), ev_data);
         }
 
         #[ink::test]
@@ -622,7 +651,7 @@ pub mod daosign_app {
             let signature = <[u8; 65]>::from_hex("4f43008200f6dea8f74ec205d874593885872158406c2ef0f71dbe2459ba9118667d10451069d5015fc005c88b2337240c8f02edf904e08b4abf723dc20998a91b").unwrap();
             let proof_cid = String::from("ProofOfAgreement proof cid                    ");
 
-            instance.store_proof_of_agreement(SignedProofOfAgreement {
+            let data = SignedProofOfAgreement {
                 message: ProofOfAgreement {
                     agreement_cid: String::from("ProofOfAuthority proof cid                    "),
                     signature_cids: Vec::from([String::from(
@@ -634,7 +663,8 @@ pub mod daosign_app {
                 },
                 signature: signature.to_vec(),
                 proof_cid: proof_cid.clone(),
-            });
+            };
+            instance.store_proof_of_agreement(data.clone());
 
             assert_eq!(
                 instance.poags.get(proof_cid.clone()).unwrap().signature,
@@ -695,6 +725,15 @@ pub mod daosign_app {
                     .metadata,
                 String::from("proof metadata")
             );
+
+            // Test emitted event
+            let mut events = ink::env::test::recorded_events();
+            events.next(); // skipping NewProofOfAuthority event
+            events.next(); // skipping NewProofOfSignature event
+            let event = events.next().unwrap();
+            let mut ev_data = event.data;
+            ev_data.remove(0);
+            assert_eq!(data.encode(), ev_data);
         }
 
         #[ink::test]
