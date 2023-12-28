@@ -2,7 +2,10 @@
 
 #[ink::contract]
 pub mod daosign_eip712 {
-    use ink::prelude::{string::String, vec::Vec};
+    use ink::prelude::{
+        string::{String, ToString},
+        vec::Vec,
+    };
     use scale::{Decode, Encode};
     use tiny_keccak::{Hasher, Keccak};
 
@@ -162,7 +165,6 @@ pub mod daosign_eip712 {
     // DAOsignEIP712 contract
     //
 
-    #[derive(Debug)]
     #[ink(storage)]
     pub struct DAOsignEIP712 {
         domain: EIP712Domain,
@@ -212,7 +214,7 @@ pub mod daosign_eip712 {
 
         fn init_eip712_types(&mut self) -> () {
             // Initialize EIP712Domain types
-            let domain_types = vec![
+            let domain_types = Vec::from([
                 EIP712PropertyType {
                     name: "name".to_string(),
                     kind: "string".to_string(),
@@ -229,10 +231,10 @@ pub mod daosign_eip712 {
                     name: "verifyingContract".to_string(),
                     kind: "address".to_string(),
                 },
-            ];
+            ]);
 
             // Initialize Signer types
-            let signer_types = vec![
+            let signer_types = Vec::from([
                 EIP712PropertyType {
                     name: "addr".to_string(),
                     kind: "address".to_string(),
@@ -241,10 +243,10 @@ pub mod daosign_eip712 {
                     name: "metadata".to_string(),
                     kind: "string".to_string(),
                 },
-            ];
+            ]);
 
             // Initialize ProofOfAuthority types
-            let proof_of_authority_types = vec![
+            let proof_of_authority_types = Vec::from([
                 EIP712PropertyType {
                     name: "name".to_string(),
                     kind: "string".to_string(),
@@ -273,10 +275,10 @@ pub mod daosign_eip712 {
                     name: "metadata".to_string(),
                     kind: "string".to_string(),
                 },
-            ];
+            ]);
 
             // Initialize ProofOfSignature types
-            let proof_of_signature_types = vec![
+            let proof_of_signature_types = Vec::from([
                 EIP712PropertyType {
                     name: "name".to_string(),
                     kind: "string".to_string(),
@@ -301,10 +303,10 @@ pub mod daosign_eip712 {
                     name: "metadata".to_string(),
                     kind: "string".to_string(),
                 },
-            ];
+            ]);
 
             // Initialize ProofOfAgreement types
-            let proof_of_agreement_types = vec![
+            let proof_of_agreement_types = Vec::from([
                 EIP712PropertyType {
                     name: "agreementCID".to_string(),
                     kind: "string".to_string(),
@@ -325,7 +327,7 @@ pub mod daosign_eip712 {
                     name: "metadata".to_string(),
                     kind: "string".to_string(),
                 },
-            ];
+            ]);
 
             // Set the types in the contract's storage
             self.proof_of_authority_types.eip712_domain = domain_types.clone();

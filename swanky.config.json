@@ -1,0 +1,82 @@
+{
+  "node": {
+    "localPath": "/Users/mkushka/Documents/Work/CIDT/projects/daosign/swanky-test/bin/swanky-node",
+    "polkadotPalletVersions": "polkadot-v0.9.39",
+    "supportedInk": "v4.2.0"
+  },
+  "accounts": [
+    {
+      "alias": "alice",
+      "mnemonic": "//Alice",
+      "isDev": true,
+      "address": "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
+    },
+    {
+      "alias": "bob",
+      "mnemonic": "//Bob",
+      "isDev": true,
+      "address": "5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty"
+    },
+    {
+      "mnemonic": "//Charlie",
+      "isDev": true,
+      "alias": "charlie",
+      "address": "5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y"
+    }
+  ],
+  "networks": {
+    "local": {
+      "url": "ws://127.0.0.1:9944"
+    },
+    "astar": {
+      "url": "wss://rpc.astar.network"
+    },
+    "shiden": {
+      "url": "wss://rpc.shiden.astar.network"
+    },
+    "shibuya": {
+      "url": "wss://rpc.shibuya.astar.network"
+    }
+  },
+  "contracts": {
+    "flipper": {
+      "name": "flipper",
+      "moduleName": "flipper",
+      "deployments": [
+        {
+          "timestamp": 1703790870329,
+          "address": "5FXR2hiGP2jqGWu1SbRMf7S4vCk3RTDVuTEegnzzL9k9TAJp",
+          "networkUrl": "ws://127.0.0.1:9944",
+          "deployerAlias": "bob"
+        },
+        {
+          "timestamp": 1703790895684,
+          "address": "5CYZsNMwQPcpFKWtVvtRUuMzSocv4U8egmwWx3UvUYCU23jF",
+          "networkUrl": "ws://127.0.0.1:9944",
+          "deployerAlias": "bob"
+        },
+        {
+          "timestamp": 1703791412410,
+          "address": "5DyCQejisJDsbjfWW3jroprWbfPAzgpKnmQQrQneM3v6gnSp",
+          "networkUrl": "ws://127.0.0.1:9944",
+          "deployerAlias": "bob"
+        }
+      ]
+    },
+    "daosign_eip712": {
+      "name": "daosign_eip712",
+      "moduleName": "daosign_eip712",
+      "deployments": []
+    },
+    "daosign_app": {
+      "name": "daosign_app",
+      "moduleName": "daosign_app",
+      "deployments": []
+    },
+    "app": {
+      "name": "app",
+      "moduleName": "app",
+      "deployments": []
+    }
+  }
+}
