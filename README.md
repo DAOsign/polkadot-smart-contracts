@@ -1,11 +1,10 @@
-# polkadot-smart-contracts
+# DAOsign Ink! Proofs Smart Contracts
 
-## How to use repo
-Read: [https://docs.astar.network/docs/build/wasm/swanky-suite/cli](https://docs.astar.network/docs/build/wasm/swanky-suite/cli)
+To learn more about repo structure read [https://docs.astar.network/docs/build/wasm/swanky-suite/cli](https://docs.astar.network/docs/build/wasm/swanky-suite/cli)
 
-## Lint
+## Install Dependencies
 ```
-cargo fmt
+yarn
 ```
 
 ## Build
@@ -19,4 +18,11 @@ yarn build
 2. Test with `yarn test`
 
 ## Unit Tests (Rust)
-`cargo test` to test or `cargo test -- --nocapture` to test and see `debug_println!` output
+1. `yarn build`
+2. `cd contracts/<daosign_app|daosign_eip712>`
+3. `cargo test` to test or `cargo test -- --nocapture` to test and see `debug_println!` output
+
+## Lint (Rust)
+```
+cargo fmt
+```
