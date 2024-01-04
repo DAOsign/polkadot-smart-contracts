@@ -13,7 +13,10 @@ cargo fmt
 yarn build
 ```
 
-## Test
+## E2E Tests (Typescript)
 
 1. Start a node with `yarn node`
 2. Test with `yarn test`
+
+## Unit Tests (Rust)
+`cargo test` to test or `cargo test -- --nocapture` to test and see `debug_println!` output

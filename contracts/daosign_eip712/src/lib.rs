@@ -166,7 +166,7 @@ pub mod daosign_eip712 {
     //
 
     #[ink(storage)]
-    // #[derive(Debug)]
+    #[derive(Debug)]
     pub struct DAOsignEIP712 {
         pub domain: EIP712Domain,
         pub domain_hash: [u8; 32],
