@@ -307,6 +307,7 @@ pub mod daosign_app {
         use super::*;
         use daosign_eip712::daosign_eip712::Signer;
         use hex::FromHex;
+        use ink::env::debug_println;
 
         fn store_proof_of_authority(instance: &mut DAOsignApp) {
             let timestamp: u64 = 1702609459;
@@ -403,12 +404,15 @@ pub mod daosign_app {
             let timestamp_bytes = timestamp.to_be_bytes();
             let mut timestamp_arr: [u8; 32] = [0; 32];
             timestamp_arr[24..].copy_from_slice(&timestamp_bytes);
+            debug_println!("{:?}", timestamp_arr);
 
             let from = <[u8; 20]>::from_hex("f39Fd6e51aad88F6F4ce6aB8827279cffFb92266").unwrap();
             let mut from_arr: [u8; 32] = [0; 32];
             from_arr[12..].copy_from_slice(&from);
+            debug_println!("{:?}", from_arr);
 
             let signature = <[u8; 65]>::from_hex("130561fa55cda78e5a9ac0cb96e76409fa5112a39422604b043580a559a2a352641f71fe278c74192594c27d3d7c5b7f7995e63bd0ddc96124ae8532fe51d9111c").unwrap();
+            debug_println!("{:?}", signature);
             let proof_cid = String::from("ProofOfAuthority proof cid                    ");
 
             let data = SignedProofOfAuthority {

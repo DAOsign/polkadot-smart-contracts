@@ -4,7 +4,7 @@ import DAOsignAppFactory from "../../typedContracts/daosign_app/constructors/dao
 import DAOsignApp from "../../typedContracts/daosign_app/contracts/daosign_app";
 import { ApiPromise, WsProvider, Keyring } from "@polkadot/api";
 import { KeyringPair } from "@polkadot/keyring/types";
-import { EIP712Domain, ProofOfAuthority } from "../../typedContracts/daosign_app/types-arguments/daosign_app";
+import { EIP712Domain, ProofOfAuthority, SignedProofOfAuthority } from "../../typedContracts/daosign_app/types-arguments/daosign_app";
 
 use(chaiAsPromised);
 
@@ -43,141 +43,50 @@ describe("DAOsignApp Tests", () => {
     await api.disconnect();
   });
 
-  it.only("lifecycle", async () => {
-    // expect(await contract.methods.storeProofOfAgreement())
+  it("lifecycle", async () => {
+    const timestamp = 1702609459;
+    const timestampArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 101, 123, 194, 51];
+    const from = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266';
+    const fromArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 243, 159, 214, 229, 26, 173, 136, 246, 244, 206, 106, 184, 130, 114, 121, 207, 255, 185, 34, 102];
+    const signature = '0x130561fa55cda78e5a9ac0cb96e76409fa5112a39422604b043580a559a2a352641f71fe278c74192594c27d3d7c5b7f7995e63bd0ddc96124ae8532fe51d9111c';
+    const signatureArr = [19, 5, 97, 250, 85, 205, 167, 142, 90, 154, 192, 203, 150, 231, 100, 9, 250, 81, 18, 163, 148, 34, 96, 75, 4, 53, 128, 165, 89, 162, 163, 82, 100, 31, 113, 254, 39, 140, 116, 25, 37, 148, 194, 125, 61, 124, 91, 127, 121, 149, 230, 59, 208, 221, 201, 97, 36, 174, 133, 50, 254, 81, 217, 17, 28];
 
-      //
-      // Fisrt Proof-of-Authority
-      //
+    let proofCID = "ProofOfAuthority proof cid                    ";
 
-      // prepare timestamp
-      // let timestamp1: u64 = 1701975136;
-      // let timestamp1_bytes = timestamp1.to_be_bytes();
-      // let mut timestamp1_arr: [u8; 32] = [0; 32];
-      // timestamp1_arr[24..].copy_from_slice(&timestamp1_bytes);
+    let data: SignedProofOfAuthority = {
+        message: {
+            name: "Proof-of-Authority",
+            from: fromArr,
+            agreementCid: "agreement file cid                            ",
+            signers: [{
+                addr: fromArr,
+                metadata: "some metadata",
+            }],
+            app: "daosign",
+            timestamp: timestampArr,
+            metadata: "proof metadata",
+        },
+        signature: signatureArr,
+        proofCid: proofCID,
+    };
 
-      // // prepare signers
-      // let signer1 = <[u8; 20]>::from_hex("f39fd6e51aad88f6f4ce6ab8827279cfffb92266").unwrap();
-      // let mut signer1_arr: [u8; 32] = [0; 32];
-      // signer1_arr[12..].copy_from_slice(&signer1);
+    const { gasRequired } = await contract.withSigner(deployer).query.storeProofOfAuthority(data);
 
-      // const msg: ProofOfAuthority = {
-      //   name: 'Proof-of-Authority',
-      //   from: mocks.signer.address,
-      //   agreementCID: paddRigthStr('agreement file cid'),
-      //   signers: [{ addr: mocks.signer.address, metadata: 'some metadata' }],
-      //   app: 'daosign',
-      //   timestamp: Math.floor(Date.now() / 1000),
-      //   metadata: 'proof metadata',
-      // };
-      // const sig = signMessage(mocks.privateKey, 'ProofOfAuthority', msg);
-      // console.log(
-      //   util.inspect(
-      //     {
-      //       message: msg,
-      //       signature: sig,
-      //       proofCID: paddRigthStr('ProofOfAuthority proof cid'),
-      //     },
-      //     true,
-      //     null,
-      //     true,
-      //   ),
-      // );
+    await contract.withSigner(deployer).tx.storeProofOfAuthority(data, {
+      gasLimit: gasRequired,
+    });
 
-      const signer1 = "f39fd6e51aad88f6f4ce6ab8827279cfffb92266";
-      const signer1_arr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 243, 159, 214, 229, 26, 173, 136, 246, 244, 206, 106, 184, 130, 114, 121, 207, 255, 185, 34, 102];
+    console.log((await contract.query.getProofOfAuthority(proofCID)).value.ok);
 
-      let data1: ProofOfAuthority = {
-          name: "Proof-of-Authority",
-          from: signer1_arr,
-          agreementCid: "agreement file cid                            ",
-          signers: [{
-              addr: signer1_arr,
-              metadata: "{}",
-          }],
-          app: "daosign",
-          timestamp: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 101, 114, 20, 96],
-          metadata: "proof metadata",
-      };
-      const sig = signMessage(mocks.privateKey, 'ProofOfAuthority', msg);
-      console.log(
-        util.inspect(
-          {
-            message: msg,
-            signature: sig,
-            proofCID: paddRigthStr('ProofOfAuthority proof cid'),
-          },
-          true,
-          null,
-          true,
-        ),
-      );
+    // @ts-ignore
+    data.signature = signature;
+    // @ts-ignore
+    data.message.from = '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266';
+    // @ts-ignore
+    data.message.signers[0].addr = '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266';
+    // @ts-ignore
+    data.message.timestamp = '0x00000000000000000000000000000000000000000000000000000000657bc233';
 
-      // let expected_hash1 = "982eeb361acc7f0d6402a812683b34e53f1e59f239fb32156e8b0bd2f9dfd039";
-      
-      // const { gasRequired } = await contract.withSigner(deployer).query.storeProofOfAuthority(data1);
-
-      // await contract.withSigner(deployer).tx.flip({
-      //   gasLimit: gasRequired,
-      // });
-
-      // expect((await contract.query.get()).value.ok).to.be.equal(!initialState);
-
-      // //
-      // // Second Proof-of-Authority
-      // //
-      // // prepare timestamp
-      // let timestamp2: u64 = 1701975136;
-      // let timestamp2_bytes = timestamp2.to_be_bytes();
-      // let mut timestamp2_arr: [u8; 32] = [0; 32];
-      // timestamp2_arr[24..].copy_from_slice(&timestamp2_bytes);
-
-      // // prepare signers
-      // let signer2 = <[u8; 20]>::from_hex("70997970C51812dc3A010C7d01b50e0d17dc79C8").unwrap();
-      // let mut signer2_arr: [u8; 32] = [0; 32];
-      // signer2_arr[12..].copy_from_slice(&signer2);
-
-      // let data2 = ProofOfAuthority {
-      //     name: String::from("Proof-of-Authority"),
-      //     from: signer1_arr,
-      //     agreement_cid: String::from("QmbuRibrtidhy9rJuFUjafKG7dDhwDEctc2oWr3NGVxKrd"),
-      //     signers: Vec::from([
-      //         Signer {
-      //             addr: signer1_arr,
-      //             metadata: String::from("custom metadata #1"),
-      //         },
-      //         Signer {
-      //             addr: signer2_arr,
-      //             metadata: String::from("metadata #2"),
-      //         },
-      //     ]),
-      //     app: String::from("daosign"),
-      //     timestamp: timestamp2_arr,
-      //     metadata: String::from("proof metadata"),
-      // };
-
-      // let expected_hash2 = <[u8; 32]>::from_hex(
-      //     "7764e27376e6d1a8e28583b6bda4bdabce356f493348688fe3ec5d0344700935",
-      // )
-      // .unwrap();
-      // assert_eq!(instance.hash_proof_of_authority(data2), expected_hash2);
-  })
-
-  it("Get 5", async () => {
-    expect((await contract.query.get5()).value.ok?.toString()).to.equal('5');
+    expect((await contract.query.getProofOfAuthority(proofCID)).value.ok).eql(data);
   });
-
-  //   it("Sets the initial state", async () => {
-//     expect((await contract.query.get()).value.ok).to.equal(initialState);
-//   });
-
-//   it("Can flip the state", async () => {
-//     const { gasRequired } = await contract.withSigner(deployer).query.flip();
-
-//     await contract.withSigner(deployer).tx.flip({
-//       gasLimit: gasRequired,
-//     });
-
-//     expect((await contract.query.get()).value.ok).to.be.equal(!initialState);
-//   });
 });
