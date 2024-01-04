@@ -1,4 +1,4 @@
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
 pub mod daosign_app {
@@ -6,7 +6,7 @@ pub mod daosign_app {
         DAOsignEIP712, EIP712Domain, EIP712ProofOfAgreement, EIP712ProofOfAuthority,
         EIP712ProofOfSignature, ProofOfAgreement, ProofOfAuthority, ProofOfSignature,
     };
-    use ink::prelude::string::String;
+    use ink::prelude::{string::String, vec::Vec};
     use ink::storage::traits::StorageLayout;
     use ink::storage::Mapping;
     use scale::{Decode, Encode};

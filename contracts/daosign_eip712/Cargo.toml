@@ -1,23 +1,21 @@
 [package]
-name = "daosign_app"
-version = "0.1.0"
+name = "daosign_eip712"
+version = "1.0.0"
 authors = ["Misha Kushka, CIDT <https://consideritdone.tech>"]
 edition = "2021"
 
 [dependencies]
-daosign_eip712 = { path = "../daosign_eip712" }
-ink = { version = "4.3.0", default-features = false }
-
+ink = { version = "4.3", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
-scale-info = { version = "2.6", default-features = false, features = ["derive"], optional = true }
-hex = "0.4.3"
+scale-info = { version = "2.10.0", default-features = false, features = ["derive"], optional = true }
 tiny-keccak = { version = "2.0.2", features = ["keccak"] }
 
 [dev-dependencies]
-ink_e2e = "4.2.0"
+hex = { version = "0.4", default-features = false }
 
 [lib]
-path = "lib.rs"
+name = "daosign_eip712"
+path = "src/lib.rs"
 
 [features]
 default = ["std"]
@@ -27,4 +25,3 @@ std = [
     "scale-info/std"
 ]
 ink-as-dependency = []
-e2e-tests = []
