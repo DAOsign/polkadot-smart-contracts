@@ -1,9 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
-mod daosign_eip712 {
-    use hex::FromHex;
-    use ink::prelude::{string::String, vec::Vec};
+pub mod daosign_eip712 {
+    use ink::prelude::{
+        string::{String, ToString},
+        vec::Vec,
+    };
     use scale::{Decode, Encode};
     use tiny_keccak::{Hasher, Keccak};
 
@@ -17,14 +19,14 @@ mod daosign_eip712 {
         derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
     )]
     pub struct EIP712Domain {
-        name: String,
-        version: String,
+        pub name: String,
+        pub version: String,
         // As max size in Rust is u128 comparing to u256 in Solidity, chain_id is defined as an
         // array of u8 of size 32 rather than u128. This is done to not loose precision
-        chain_id: [u8; 32],
+        pub chain_id: [u8; 32],
         // As we're storing Solidity address here (and in other structs), we will use [u8; 32]
         // instead of AccountId
-        verifying_contract: [u8; 32],
+        pub verifying_contract: [u8; 32],
     }
 
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
@@ -33,8 +35,8 @@ mod daosign_eip712 {
         derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
     )]
     pub struct Signer {
-        addr: [u8; 32],
-        metadata: String,
+        pub addr: [u8; 32],
+        pub metadata: String,
     }
 
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
@@ -43,14 +45,14 @@ mod daosign_eip712 {
         derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
     )]
     pub struct ProofOfAuthority {
-        name: String,
-        from: [u8; 32],
-        agreement_cid: String,
-        signers: Vec<Signer>,
-        app: String,
+        pub name: String,
+        pub from: [u8; 32],
+        pub agreement_cid: String,
+        pub signers: Vec<Signer>,
+        pub app: String,
         // As Rust doesn't have u256 type as in Solidity, we're using [u8; 32] here
-        timestamp: [u8; 32],
-        metadata: String,
+        pub timestamp: [u8; 32],
+        pub metadata: String,
     }
 
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
@@ -59,13 +61,13 @@ mod daosign_eip712 {
         derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
     )]
     pub struct ProofOfSignature {
-        name: String,
-        signer: [u8; 32],
-        agreement_cid: String,
-        app: String,
+        pub name: String,
+        pub signer: [u8; 32],
+        pub agreement_cid: String,
+        pub app: String,
         // As Rust doesn't have u256 type as in Solidity, we're using [u8; 32] here
-        timestamp: [u8; 32],
-        metadata: String,
+        pub timestamp: [u8; 32],
+        pub metadata: String,
     }
 
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
@@ -74,12 +76,12 @@ mod daosign_eip712 {
         derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
     )]
     pub struct ProofOfAgreement {
-        agreement_cid: String,
-        signature_cids: Vec<String>,
-        app: String,
+        pub agreement_cid: String,
+        pub signature_cids: Vec<String>,
+        pub app: String,
         // As Rust doesn't have u256 type as in Solidity, we're using [u8; 32] here
-        timestamp: [u8; 32],
-        metadata: String,
+        pub timestamp: [u8; 32],
+        pub metadata: String,
     }
 
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
@@ -98,9 +100,9 @@ mod daosign_eip712 {
         derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
     )]
     pub struct EIP712ProofOfAuthorityTypes {
-        eip712_domain: Vec<EIP712PropertyType>,
-        signer: Vec<EIP712PropertyType>,
-        proof_of_authority: Vec<EIP712PropertyType>,
+        pub eip712_domain: Vec<EIP712PropertyType>,
+        pub signer: Vec<EIP712PropertyType>,
+        pub proof_of_authority: Vec<EIP712PropertyType>,
     }
 
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
@@ -121,8 +123,8 @@ mod daosign_eip712 {
         derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
     )]
     pub struct EIP712ProofOfSignatureTypes {
-        eip712_domain: Vec<EIP712PropertyType>,
-        proof_of_signature: Vec<EIP712PropertyType>,
+        pub eip712_domain: Vec<EIP712PropertyType>,
+        pub proof_of_signature: Vec<EIP712PropertyType>,
     }
 
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
@@ -143,8 +145,8 @@ mod daosign_eip712 {
         derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
     )]
     pub struct EIP712ProofOfAgreementTypes {
-        eip712_domain: Vec<EIP712PropertyType>,
-        proof_of_agreement: Vec<EIP712PropertyType>,
+        pub eip712_domain: Vec<EIP712PropertyType>,
+        pub proof_of_agreement: Vec<EIP712PropertyType>,
     }
 
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
@@ -164,17 +166,18 @@ mod daosign_eip712 {
     //
 
     #[ink(storage)]
+    #[derive(Debug)]
     pub struct DAOsignEIP712 {
-        domain_hash: [u8; 32],
-        domain: EIP712Domain,
-        eip712domain_typehash: [u8; 32],
-        signer_typehash: [u8; 32],
-        proof_of_authority_typehash: [u8; 32],
-        proof_of_signature_typehash: [u8; 32],
-        proof_of_agreement_typehash: [u8; 32],
-        proof_of_authority_types: EIP712ProofOfAuthorityTypes,
-        proof_of_signature_types: EIP712ProofOfSignatureTypes,
-        proof_of_agreement_types: EIP712ProofOfAgreementTypes,
+        pub domain: EIP712Domain,
+        pub domain_hash: [u8; 32],
+        pub eip712domain_typehash: [u8; 32],
+        pub signer_typehash: [u8; 32],
+        pub proof_of_authority_typehash: [u8; 32],
+        pub proof_of_signature_typehash: [u8; 32],
+        pub proof_of_agreement_typehash: [u8; 32],
+        pub proof_of_authority_types: EIP712ProofOfAuthorityTypes,
+        pub proof_of_signature_types: EIP712ProofOfSignatureTypes,
+        pub proof_of_agreement_types: EIP712ProofOfAgreementTypes,
     }
 
     impl DAOsignEIP712 {
@@ -212,7 +215,7 @@ mod daosign_eip712 {
 
         fn init_eip712_types(&mut self) -> () {
             // Initialize EIP712Domain types
-            let domain_types = vec![
+            let domain_types = Vec::from([
                 EIP712PropertyType {
                     name: "name".to_string(),
                     kind: "string".to_string(),
@@ -229,10 +232,10 @@ mod daosign_eip712 {
                     name: "verifyingContract".to_string(),
                     kind: "address".to_string(),
                 },
-            ];
+            ]);
 
             // Initialize Signer types
-            let signer_types = vec![
+            let signer_types = Vec::from([
                 EIP712PropertyType {
                     name: "addr".to_string(),
                     kind: "address".to_string(),
@@ -241,10 +244,10 @@ mod daosign_eip712 {
                     name: "metadata".to_string(),
                     kind: "string".to_string(),
                 },
-            ];
+            ]);
 
             // Initialize ProofOfAuthority types
-            let proof_of_authority_types = vec![
+            let proof_of_authority_types = Vec::from([
                 EIP712PropertyType {
                     name: "name".to_string(),
                     kind: "string".to_string(),
@@ -273,10 +276,10 @@ mod daosign_eip712 {
                     name: "metadata".to_string(),
                     kind: "string".to_string(),
                 },
-            ];
+            ]);
 
             // Initialize ProofOfSignature types
-            let proof_of_signature_types = vec![
+            let proof_of_signature_types = Vec::from([
                 EIP712PropertyType {
                     name: "name".to_string(),
                     kind: "string".to_string(),
@@ -301,10 +304,10 @@ mod daosign_eip712 {
                     name: "metadata".to_string(),
                     kind: "string".to_string(),
                 },
-            ];
+            ]);
 
             // Initialize ProofOfAgreement types
-            let proof_of_agreement_types = vec![
+            let proof_of_agreement_types = Vec::from([
                 EIP712PropertyType {
                     name: "agreementCID".to_string(),
                     kind: "string".to_string(),
@@ -325,7 +328,7 @@ mod daosign_eip712 {
                     name: "metadata".to_string(),
                     kind: "string".to_string(),
                 },
-            ];
+            ]);
 
             // Set the types in the contract's storage
             self.proof_of_authority_types.eip712_domain = domain_types.clone();
@@ -557,6 +560,7 @@ mod daosign_eip712 {
     #[cfg(test)]
     mod tests {
         use super::*;
+        use hex::FromHex;
 
         #[ink::test]
         fn constructor() {
