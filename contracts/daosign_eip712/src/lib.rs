@@ -100,9 +100,9 @@ pub mod daosign_eip712 {
         derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
     )]
     pub struct EIP712ProofOfAuthorityTypes {
-        eip712_domain: Vec<EIP712PropertyType>,
-        signer: Vec<EIP712PropertyType>,
-        proof_of_authority: Vec<EIP712PropertyType>,
+        pub eip712_domain: Vec<EIP712PropertyType>,
+        pub signer: Vec<EIP712PropertyType>,
+        pub proof_of_authority: Vec<EIP712PropertyType>,
     }
 
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
@@ -123,8 +123,8 @@ pub mod daosign_eip712 {
         derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
     )]
     pub struct EIP712ProofOfSignatureTypes {
-        eip712_domain: Vec<EIP712PropertyType>,
-        proof_of_signature: Vec<EIP712PropertyType>,
+        pub eip712_domain: Vec<EIP712PropertyType>,
+        pub proof_of_signature: Vec<EIP712PropertyType>,
     }
 
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
@@ -145,8 +145,8 @@ pub mod daosign_eip712 {
         derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
     )]
     pub struct EIP712ProofOfAgreementTypes {
-        eip712_domain: Vec<EIP712PropertyType>,
-        proof_of_agreement: Vec<EIP712PropertyType>,
+        pub eip712_domain: Vec<EIP712PropertyType>,
+        pub proof_of_agreement: Vec<EIP712PropertyType>,
     }
 
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
@@ -166,17 +166,18 @@ pub mod daosign_eip712 {
     //
 
     #[ink(storage)]
+    // #[derive(Debug)]
     pub struct DAOsignEIP712 {
-        domain: EIP712Domain,
-        domain_hash: [u8; 32],
-        eip712domain_typehash: [u8; 32],
-        signer_typehash: [u8; 32],
-        proof_of_authority_typehash: [u8; 32],
-        proof_of_signature_typehash: [u8; 32],
-        proof_of_agreement_typehash: [u8; 32],
-        proof_of_authority_types: EIP712ProofOfAuthorityTypes,
-        proof_of_signature_types: EIP712ProofOfSignatureTypes,
-        proof_of_agreement_types: EIP712ProofOfAgreementTypes,
+        pub domain: EIP712Domain,
+        pub domain_hash: [u8; 32],
+        pub eip712domain_typehash: [u8; 32],
+        pub signer_typehash: [u8; 32],
+        pub proof_of_authority_typehash: [u8; 32],
+        pub proof_of_signature_typehash: [u8; 32],
+        pub proof_of_agreement_typehash: [u8; 32],
+        pub proof_of_authority_types: EIP712ProofOfAuthorityTypes,
+        pub proof_of_signature_types: EIP712ProofOfSignatureTypes,
+        pub proof_of_agreement_types: EIP712ProofOfAgreementTypes,
     }
 
     impl DAOsignEIP712 {

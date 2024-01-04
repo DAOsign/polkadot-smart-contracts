@@ -297,3 +297,4 @@ vscode
 *.code-workspace
 testReports/
 swanky-node
+*.log

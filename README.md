@@ -10,7 +10,7 @@ cargo fmt
 
 ## Build
 ```
-cargo contract build
+swanky contract compile --all
 ```
 
 ## Test

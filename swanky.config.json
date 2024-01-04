@@ -39,30 +39,6 @@
     }
   },
   "contracts": {
-    "flipper": {
-      "name": "flipper",
-      "moduleName": "flipper",
-      "deployments": [
-        {
-          "timestamp": 1703790870329,
-          "address": "5FXR2hiGP2jqGWu1SbRMf7S4vCk3RTDVuTEegnzzL9k9TAJp",
-          "networkUrl": "ws://127.0.0.1:9944",
-          "deployerAlias": "bob"
-        },
-        {
-          "timestamp": 1703790895684,
-          "address": "5CYZsNMwQPcpFKWtVvtRUuMzSocv4U8egmwWx3UvUYCU23jF",
-          "networkUrl": "ws://127.0.0.1:9944",
-          "deployerAlias": "bob"
-        },
-        {
-          "timestamp": 1703791412410,
-          "address": "5DyCQejisJDsbjfWW3jroprWbfPAzgpKnmQQrQneM3v6gnSp",
-          "networkUrl": "ws://127.0.0.1:9944",
-          "deployerAlias": "bob"
-        }
-      ]
-    },
     "daosign_eip712": {
       "name": "daosign_eip712",
       "moduleName": "daosign_eip712",
@@ -71,11 +47,6 @@
     "daosign_app": {
       "name": "daosign_app",
       "moduleName": "daosign_app",
-      "deployments": []
-    },
-    "app": {
-      "name": "app",
-      "moduleName": "app",
       "deployments": []
     }
   }
