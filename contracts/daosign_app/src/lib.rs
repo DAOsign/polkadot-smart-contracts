@@ -134,6 +134,11 @@ pub mod daosign_app {
         }
 
         #[ink(message)]
+        pub fn get_5(&self) -> u128 {
+            5
+        }
+
+        #[ink(message)]
         pub fn store_proof_of_authority(&mut self, data: SignedProofOfAuthority) {
             // convert address stored in 32 bytes to 20 bytes
             let from_arr20: [u8; 20] = data.message.from[12..].try_into().unwrap();

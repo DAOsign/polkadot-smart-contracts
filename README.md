@@ -10,16 +10,10 @@ cargo fmt
 
 ## Build
 ```
-swanky contract compile --all
+yarn build
 ```
 
 ## Test
-Normal
-```
-cargo test
-```
 
-With `debug_println!` output
-```
-cargo test -- --nocapture
-```
+1. Start a node with `yarn node`
+2. Test with `yarn test`
