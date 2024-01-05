@@ -22,16 +22,17 @@ RUN cargo install --force --locked cargo-contract
 
 COPY package.json yarn.lock ./
 
+RUN yarn global add @astar-network/swanky-cli
+
 RUN yarn install --non-interactive --frozen-lockfile
 
 COPY . .
 
-# RUN yarn build
+RUN yarn build
 
-# CMD ["yarn", "node"]
+CMD ["yarn", "run:node"]
 
-COPY $PWD/docker/entrypoint.sh /usr/local/bin
-
-ENTRYPOINT ["/bin/sh", "/usr/local/bin/entrypoint.sh"]
+# Keep container running
+CMD ["tail", "-f", "/dev/null"]
 
 EXPOSE 9944
