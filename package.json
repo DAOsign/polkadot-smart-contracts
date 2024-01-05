@@ -1,12 +1,11 @@
 {
-  "name": "swanky-test",
+  "name": "daosign-proofs",
   "version": "1.0.0",
-  "author": "Misha Kushka",
-  "license": "MIT",
+  "author": "Misha Kushka, CIDT <https://consideritdone.tech>",
   "scripts": {
-    "build": "swanky contract compile --all",
-    "node": "swanky node start",
-    "test": "mocha --config .mocharc.json"
+    "build": "yarn swanky contract compile --all",
+    "node": "yarn swanky node start",
+    "test": "yarn mocha --config .mocharc.json"
   },
   "engines": {
     "node": ">=20.0.0"
@@ -14,6 +13,7 @@
   "dependencies": {
     "@727-ventures/typechain-polkadot": "^1.1.1",
     "@727-ventures/typechain-types": "^1.1.2",
+    "@astar-network/swanky-cli": "^3.1.0",
     "@types/node": "^20.10.6",
     "typescript": "^5.3.3"
   },
