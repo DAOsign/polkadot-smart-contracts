@@ -22,7 +22,8 @@ COPY . .
 
 RUN npm run build
 
-RUN npm run node
+# RUN npm run node:install
+RUN npm run node:start
 
 # Keep container running
 CMD ["tail", "-f", "/dev/null"]
