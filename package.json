@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "author": "Misha Kushka, CIDT <https://consideritdone.tech>",
   "scripts": {
-    "build": "swanky contract compile --all",
-    "run:node": "swanky node start",
-    "test": "yarn mocha --config .mocharc.json"
+    "build": "npx swanky contract compile --all",
+    "node": "npx swanky node start",
+    "test": "npx mocha --config .mocharc.json"
   },
   "engines": {
     "node": ">=20.0.0"
@@ -13,6 +13,7 @@
   "dependencies": {
     "@727-ventures/typechain-polkadot": "^1.1.1",
     "@727-ventures/typechain-types": "^1.1.2",
+    "@astar-network/swanky-cli": "^3.1.0",
     "@types/node": "^20.10.6",
     "typescript": "^5.3.3"
   },

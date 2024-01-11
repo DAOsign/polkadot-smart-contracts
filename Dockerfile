@@ -20,17 +20,15 @@ RUN rustup component add rust-src
 # Install cargo-contract
 RUN cargo install --force --locked cargo-contract
 
-COPY package.json yarn.lock ./
+COPY package.json package-lock.json ./
 
-RUN yarn global add @astar-network/swanky-cli
-
-RUN yarn install --non-interactive --frozen-lockfile
+RUN npm i
 
 COPY . .
 
-RUN yarn build
+RUN npm run build
 
-CMD ["yarn", "run:node"]
+RUN npm run run:node
 
 # Keep container running
 CMD ["tail", "-f", "/dev/null"]

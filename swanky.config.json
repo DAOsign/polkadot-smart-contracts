@@ -1,6 +1,6 @@
 {
   "node": {
-    "localPath": "/Users/mkushka/Documents/Work/CIDT/projects/daosign/swanky-test/bin/swanky-node",
+    "localPath": "./bin/swanky-node",
     "polkadotPalletVersions": "polkadot-v0.9.39",
     "supportedInk": "v4.2.0"
   },

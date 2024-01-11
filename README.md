@@ -19,8 +19,9 @@ yarn build
 
 ### E2E Tests (Typescript)
 
-1. Start a node with `yarn node`
-2. Test with `yarn test`
+1. Download `swanky-node` from [here](https://github.com/inkdevhub/swanky-node/releases) and put it in the project's `bin` folder.
+2. Start a node with `yarn run:node`
+3. Test with `yarn test`
 
 ### Unit Tests (Rust)
 1. `yarn build`
