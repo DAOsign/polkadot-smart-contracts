@@ -10,14 +10,12 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "dependencies": {
+  "devDependencies": {
     "@727-ventures/typechain-polkadot": "^1.1.1",
     "@727-ventures/typechain-types": "^1.1.2",
     "@astar-network/swanky-cli": "^3.1.0",
     "@types/node": "^20.10.6",
-    "typescript": "^5.3.3"
-  },
-  "devDependencies": {
+    "typescript": "^5.3.3",
     "@metamask/eth-sig-util": "^7.0.1",
     "@types/chai": "^4.3.11",
     "@types/chai-as-promised": "^7.1.8",
