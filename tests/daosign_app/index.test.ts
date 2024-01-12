@@ -289,4 +289,59 @@ describe('DAOsignApp Tests', () => {
     });
 
   });
+
+  describe.only('Lifecycle', () => {
+
+    it('#1', async () => {
+      // Store Proof-of-Authority
+      const poaData = {
+          message: {
+              name: 'Proof-of-Authority',
+              from: hexStringToArray('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 32),
+              agreementCid: 'agreement file cid                            ',
+              signers: [{
+                  addr: hexStringToArray('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 32),
+                  metadata: 'some metadata',
+              }],
+              app: 'daosign',
+              timestamp: numberToArray(1702609459),
+              metadata: 'proof metadata',
+          },
+          signature: hexStringToArray('0x130561fa55cda78e5a9ac0cb96e76409fa5112a39422604b043580a559a2a352641f71fe278c74192594c27d3d7c5b7f7995e63bd0ddc96124ae8532fe51d9111c'),
+          proofCid: 'ProofOfAuthority proof cid                    ',
+      };
+      await contract.withSigner(deployer).tx.storeProofOfAuthority(poaData);
+
+      // Store Proof-of-Signature
+      const posData: SignedProofOfSignature = {
+          message: {
+              name: 'Proof-of-Signature',
+              signer: hexStringToArray('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 32),
+              agreementCid: 'ProofOfAuthority proof cid                    ',
+              app: 'daosign',
+              timestamp: numberToArray(1702609048),
+              metadata: 'proof metadata',
+          },
+          signature: hexStringToArray('0x3873d49c83039d1624ec52ee6f6edbe0d31105a7aebcd1304e8326adc0807c3e692efc2b302370dbc0c7ea44904130e3468ff34ff1eaf65613ad8ba6db9405e31c'),
+          proofCid: 'ProofOfSignature proof cid                    ',
+      };
+
+      await contract.withSigner(deployer).tx.storeProofOfSignature(posData);
+
+      // Store Proof-of-Agreement
+      const poagData: SignedProofOfAgreement = {
+          message: {
+              agreementCid: 'ProofOfAuthority proof cid                    ',
+              signatureCids: ['ProofOfSignature proof cid                    '],
+              app: 'daosign',
+              timestamp: numberToArray(1705019531),
+              metadata: 'proof metadata',
+          },
+          signature: hexStringToArray('anything can go here as there is no signer                                                                                          '),
+          proofCid: 'anything can go here as there is no signer    ',
+      };
+
+      await contract.withSigner(deployer).tx.storeProofOfAgreement(poagData);
+    })
+  });
 });
