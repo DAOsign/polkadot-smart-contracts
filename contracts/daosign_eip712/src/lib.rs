@@ -14,9 +14,10 @@ pub mod daosign_eip712 {
     use tiny_keccak::{Hasher, Keccak};
 
     //
-    // structs definitions
+    // Structs definitions
     //
 
+    /// EIP-712 Domain struct representing the domain-specific parameters for signature verification.
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
     #[cfg_attr(
         feature = "std",
@@ -33,6 +34,7 @@ pub mod daosign_eip712 {
         pub verifying_contract: [u8; 32],
     }
 
+    /// Signer struct representing an address and associated metadata.
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
     #[cfg_attr(
         feature = "std",
@@ -43,6 +45,7 @@ pub mod daosign_eip712 {
         pub metadata: String,
     }
 
+    /// ProofOfAuthority struct representing the Proof-of-Authority parameters.
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
     #[cfg_attr(
         feature = "std",
@@ -59,6 +62,7 @@ pub mod daosign_eip712 {
         pub metadata: String,
     }
 
+    /// ProofOfSignature struct representing the Proof-of-Signature parameters.
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
     #[cfg_attr(
         feature = "std",
@@ -74,6 +78,7 @@ pub mod daosign_eip712 {
         pub metadata: String,
     }
 
+    /// ProofOfAgreement struct representing the Proof-of-Agreement parameters.
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
     #[cfg_attr(
         feature = "std",
@@ -88,6 +93,7 @@ pub mod daosign_eip712 {
         pub metadata: String,
     }
 
+    /// EIP712PropertyType struct representing the structure of EIP-712 properties.
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
     #[cfg_attr(
         feature = "std",
@@ -98,6 +104,7 @@ pub mod daosign_eip712 {
         kind: String,
     }
 
+    /// EIP712ProofOfAuthorityTypes struct representing the types for EIP-712 Proof-of-Authority.
     #[derive(Default, Debug, Clone, PartialEq, Eq, Decode, Encode)]
     #[cfg_attr(
         feature = "std",
@@ -109,6 +116,29 @@ pub mod daosign_eip712 {
         pub proof_of_authority: Vec<EIP712PropertyType>,
     }
 
+    /// EIP712ProofOfSignatureTypes struct representing the types for EIP-712 Proof-of-Signature.
+    #[derive(Default, Debug, Clone, PartialEq, Eq, Decode, Encode)]
+    #[cfg_attr(
+        feature = "std",
+        derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
+    )]
+    pub struct EIP712ProofOfSignatureTypes {
+        pub eip712_domain: Vec<EIP712PropertyType>,
+        pub proof_of_signature: Vec<EIP712PropertyType>,
+    }
+
+    /// EIP712ProofOfAgreementTypes struct representing the types for EIP-712 Proof-of-Agreement.
+    #[derive(Default, Debug, Clone, PartialEq, Eq, Decode, Encode)]
+    #[cfg_attr(
+        feature = "std",
+        derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
+    )]
+    pub struct EIP712ProofOfAgreementTypes {
+        pub eip712_domain: Vec<EIP712PropertyType>,
+        pub proof_of_agreement: Vec<EIP712PropertyType>,
+    }
+
+    /// EIP712ProofOfAuthority struct representing the EIP-712 message for Proof-of-Authority.
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
     #[cfg_attr(
         feature = "std",
@@ -121,16 +151,7 @@ pub mod daosign_eip712 {
         message: ProofOfAuthority,
     }
 
-    #[derive(Default, Debug, Clone, PartialEq, Eq, Decode, Encode)]
-    #[cfg_attr(
-        feature = "std",
-        derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
-    )]
-    pub struct EIP712ProofOfSignatureTypes {
-        pub eip712_domain: Vec<EIP712PropertyType>,
-        pub proof_of_signature: Vec<EIP712PropertyType>,
-    }
-
+    /// EIP712ProofOfSignature struct representing the EIP-712 message for Proof-of-Signature.
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
     #[cfg_attr(
         feature = "std",
@@ -143,16 +164,7 @@ pub mod daosign_eip712 {
         message: ProofOfSignature,
     }
 
-    #[derive(Default, Debug, Clone, PartialEq, Eq, Decode, Encode)]
-    #[cfg_attr(
-        feature = "std",
-        derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
-    )]
-    pub struct EIP712ProofOfAgreementTypes {
-        pub eip712_domain: Vec<EIP712PropertyType>,
-        pub proof_of_agreement: Vec<EIP712PropertyType>,
-    }
-
+    /// EIP712ProofOfAgreement struct representing the EIP-712 message for Proof-of-Agreement.
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
     #[cfg_attr(
         feature = "std",
@@ -169,6 +181,7 @@ pub mod daosign_eip712 {
     // DAOsignEIP712 contract
     //
 
+    /// Contract Storage struct
     #[ink(storage)]
     #[derive(Debug)]
     pub struct DAOsignEIP712 {
@@ -184,7 +197,20 @@ pub mod daosign_eip712 {
         pub proof_of_agreement_types: EIP712ProofOfAgreementTypes,
     }
 
+    /// Implementation of DAOsignEIP712 Ink! constructor and private Rust functions needed for it
     impl DAOsignEIP712 {
+        /// # Ink! constructor for creating a new DAOsignEIP712 instance.
+        ///
+        /// This constructor initializes a new DAOsignEIP712 contract instance with the provided EIP712 domain.
+        /// It sets up the domain hash, type hashes, and EIP712 types needed for hashing proofs.
+        ///
+        /// # Arguments
+        ///
+        /// * `domain` - EIP712Domain struct representing the domain of the contract.
+        ///
+        /// # Returns
+        ///
+        /// A new instance of DAOsignEIP712.
         #[ink(constructor)]
         pub fn new(domain: EIP712Domain) -> Self {
             let mut instance = Self {
@@ -205,10 +231,21 @@ pub mod daosign_eip712 {
             instance
         }
 
+        /// # Helper function to initialize `domain_hash` variable with DAOsign proofs `domain`.
+        ///
+        /// This function takes the provided EIP712 domain and calculates its hash, which is then stored in the `domain_hash` variable.
+        ///
+        /// # Arguments
+        ///
+        /// * `domain` - EIP712Domain struct representing the domain of the contract.
         fn init_domainhash(&mut self, domain: EIP712Domain) -> () {
             self.domain_hash = self.hash_domain(domain);
         }
 
+        /// # Helper function to initialize hashes of all EIP-712-styled structs. This will be needed
+        /// # later on to hash proofs.
+        ///
+        /// This function initializes the type hashes for EIP712Domain, Signer, Proof-of-Authority, Proof-of-Signature, and Proof-of-Agreement.
         fn init_typehashes(&mut self) -> () {
             self.eip712domain_typehash = Self::keccak_hash("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
             self.signer_typehash = Self::keccak_hash("Signer(address addr,string metadata)");
@@ -217,6 +254,10 @@ pub mod daosign_eip712 {
             self.proof_of_agreement_typehash = Self::keccak_hash("ProofOfAgreement(string agreementCID,string[] signatureCIDs,string app,uint256 timestamp,string metadata)");
         }
 
+        /// # Helper function to initialize EIP-712, Signer, Proof-of-Authority, Proof-of-Signature, and
+        /// # Proof-of-Agreement domain types.
+        ///
+        /// This function sets up the EIP712 types needed for hashing proofs and stores them in the contract's storage.
         fn init_eip712_types(&mut self) -> () {
             // Initialize EIP712Domain types
             let domain_types = Vec::from([
@@ -346,6 +387,17 @@ pub mod daosign_eip712 {
             self.proof_of_agreement_types.proof_of_agreement = proof_of_agreement_types;
         }
 
+        /// # Helper function to get Keccak-256 hash of any given string.
+        ///
+        /// This function takes a string input and calculates its Keccak-256 hash.
+        ///
+        /// # Arguments
+        ///
+        /// * `input` - String to be hashed.
+        ///
+        /// # Returns
+        ///
+        /// A 32-byte array representing the Keccak-256 hash of the input string.
         fn keccak_hash(input: &str) -> [u8; 32] {
             let mut keccak = Keccak::v256();
             let mut output = [0u8; 32];
@@ -354,6 +406,17 @@ pub mod daosign_eip712 {
             output
         }
 
+        /// # Helper function to get Keccak-256 hash of any given array of bytes.
+        ///
+        /// This function takes an array of bytes as input and calculates its Keccak-256 hash.
+        ///
+        /// # Arguments
+        ///
+        /// * `input` - Array of bytes to be hashed.
+        ///
+        /// # Returns
+        ///
+        /// A 32-byte array representing the Keccak-256 hash of the input array of bytes.
         fn keccak_hash_bytes(input: &[u8]) -> [u8; 32] {
             let mut keccak = Keccak::v256();
             let mut output = [0u8; 32];
@@ -363,7 +426,19 @@ pub mod daosign_eip712 {
         }
     }
 
+    /// Implementation of DAOsignEIP712 public Ink! functions
     impl DAOsignEIP712 {
+        /// # Ink! function to get the hash of an EIP712Domain struct.
+        ///
+        /// This function takes an EIP712Domain struct and calculates its hash using the specified encoding rules.
+        ///
+        /// # Arguments
+        ///
+        /// * `data` - EIP712Domain struct to be hashed.
+        ///
+        /// # Returns
+        ///
+        /// A 32-byte array representing the hash of the EIP712Domain.
         #[ink(message)]
         pub fn hash_domain(&self, data: EIP712Domain) -> [u8; 32] {
             let mut encoded_data = Vec::new();
@@ -377,6 +452,17 @@ pub mod daosign_eip712 {
             Self::keccak_hash_bytes(&encoded_data)
         }
 
+        /// # Ink! function to get the hash of a Signer struct.
+        ///
+        /// This function takes a Signer struct and calculates its hash using the specified encoding rules.
+        ///
+        /// # Arguments
+        ///
+        /// * `data` - Signer struct to be hashed.
+        ///
+        /// # Returns
+        ///
+        /// A 32-byte array representing the hash of the Signer.
         #[ink(message)]
         pub fn hash_signer(&self, data: Signer) -> [u8; 32] {
             let mut encoded_data = Vec::new();
@@ -388,6 +474,17 @@ pub mod daosign_eip712 {
             Self::keccak_hash_bytes(&encoded_data)
         }
 
+        /// # Ink! function to get the hash of an array of Signer structs.
+        ///
+        /// This function takes an array of Signer structs and calculates their collective hash using the specified encoding rules.
+        ///
+        /// # Arguments
+        ///
+        /// * `data` - Array of Signer structs to be hashed.
+        ///
+        /// # Returns
+        ///
+        /// A 32-byte array representing the collective hash of the array of Signers.
         #[ink(message)]
         pub fn hash_signers(&self, data: Vec<Signer>) -> [u8; 32] {
             let mut encoded_data = Vec::new();
@@ -397,6 +494,37 @@ pub mod daosign_eip712 {
             Self::keccak_hash_bytes(&encoded_data)
         }
 
+        /// # Ink! function to get the hash of an array of strings.
+        ///
+        /// This function takes an array of strings and calculates their collective hash using the specified encoding rules.
+        ///
+        /// # Arguments
+        ///
+        /// * `data` - Array of strings to be hashed.
+        ///
+        /// # Returns
+        ///
+        /// A 32-byte array representing the collective hash of the array of strings.
+        #[ink(message)]
+        pub fn hash_strings(&self, data: Vec<String>) -> [u8; 32] {
+            let mut encoded_data = Vec::new();
+            for string in data.iter() {
+                encoded_data.extend_from_slice(&Self::keccak_hash(string));
+            }
+            Self::keccak_hash_bytes(&encoded_data)
+        }
+
+        /// # Ink! function to get the hash of a ProofOfAuthority struct.
+        ///
+        /// This function takes a ProofOfAuthority struct and calculates its hash using the specified encoding rules.
+        ///
+        /// # Arguments
+        ///
+        /// * `data` - ProofOfAuthority struct to be hashed.
+        ///
+        /// # Returns
+        ///
+        /// A 32-byte array representing the hash of the ProofOfAuthority.
         #[ink(message)]
         pub fn hash_proof_of_authority(&self, data: ProofOfAuthority) -> [u8; 32] {
             let mut encoded_data = Vec::new();
@@ -413,6 +541,17 @@ pub mod daosign_eip712 {
             Self::keccak_hash_bytes(&encoded_data)
         }
 
+        /// # Ink! function to get the hash of a ProofOfSignature struct.
+        ///
+        /// This function takes a ProofOfSignature struct and calculates its hash using the specified encoding rules.
+        ///
+        /// # Arguments
+        ///
+        /// * `data` - ProofOfSignature struct to be hashed.
+        ///
+        /// # Returns
+        ///
+        /// A 32-byte array representing the hash of the ProofOfSignature.
         #[ink(message)]
         pub fn hash_proof_of_signature(&self, data: ProofOfSignature) -> [u8; 32] {
             let mut encoded_data = Vec::new();
@@ -428,15 +567,17 @@ pub mod daosign_eip712 {
             Self::keccak_hash_bytes(&encoded_data)
         }
 
-        #[ink(message)]
-        pub fn hash_strings(&self, data: Vec<String>) -> [u8; 32] {
-            let mut encoded_data = Vec::new();
-            for string in data.iter() {
-                encoded_data.extend_from_slice(&Self::keccak_hash(string));
-            }
-            Self::keccak_hash_bytes(&encoded_data)
-        }
-
+        /// # Ink! function to get the hash of a ProofOfAgreement struct.
+        ///
+        /// This function takes a ProofOfAgreement struct and calculates its hash using the specified encoding rules.
+        ///
+        /// # Arguments
+        ///
+        /// * `data` - ProofOfAgreement struct to be hashed.
+        ///
+        /// # Returns
+        ///
+        /// A 32-byte array representing the hash of the ProofOfAgreement.
         #[ink(message)]
         pub fn hash_proof_of_agreement(&self, data: ProofOfAgreement) -> [u8; 32] {
             let mut encoded_data = Vec::new();
@@ -451,6 +592,21 @@ pub mod daosign_eip712 {
             Self::keccak_hash_bytes(&encoded_data)
         }
 
+        /// # Recover function for retrieving the Ethereum address from an EIP-712 signature.
+        ///
+        /// This function takes an EIP-712 message hash and its corresponding signature,
+        /// then performs ECDSA recovery to obtain the uncompressed public key.
+        /// The recovered public key is then converted to an Ethereum address,
+        /// and the 20-byte address is returned.
+        ///
+        /// # Arguments
+        ///
+        /// * `message` - A 32-byte hash representing the EIP-712 message.
+        /// * `sig` - A 65-byte signature obtained from signing the EIP-712 message.
+        ///
+        /// # Returns
+        ///
+        /// A 20-byte array representing the Ethereum address recovered from the signature.
         #[ink(message)]
         pub fn recover(&self, message: [u8; 32], sig: [u8; 65]) -> [u8; 20] {
             // Recover the public key from the signature
@@ -464,6 +620,20 @@ pub mod daosign_eip712 {
             account_id_bytes
         }
 
+        /// # Recover function for Proof of Authority, retrieving the Ethereum address from a signature.
+        ///
+        /// This function takes a ProofOfAuthority struct, computes its hash, and uses it to create a
+        /// compound message for ECDSA recovery. The signature and message are then passed to the recover
+        /// function to obtain the Ethereum address.
+        ///
+        /// # Arguments
+        ///
+        /// * `data` - ProofOfAuthority struct containing information about the authority proof.
+        /// * `signature` - A 65-byte signature obtained from signing the ProofOfAuthority message.
+        ///
+        /// # Returns
+        ///
+        /// A 20-byte array representing the Ethereum address recovered from the ProofOfAuthority signature.
         #[ink(message)]
         pub fn recover_proof_of_authority(
             &self,
@@ -483,6 +653,20 @@ pub mod daosign_eip712 {
             self.recover(digest, signature)
         }
 
+        /// # Recover function for Proof of Signature, retrieving the Ethereum address from a signature.
+        ///
+        /// Similar to recover_proof_of_authority, this function takes a ProofOfSignature struct,
+        /// computes its hash, and uses it to create a compound message for ECDSA recovery. The signature
+        /// and message are then passed to the recover function to obtain the Ethereum address.
+        ///
+        /// # Arguments
+        ///
+        /// * `data` - ProofOfSignature struct containing information about the signature proof.
+        /// * `signature` - A 65-byte signature obtained from signing the ProofOfSignature message.
+        ///
+        /// # Returns
+        ///
+        /// A 20-byte array representing the Ethereum address recovered from the ProofOfSignature signature.
         #[ink(message)]
         pub fn recover_proof_of_signature(
             &self,
@@ -502,6 +686,20 @@ pub mod daosign_eip712 {
             self.recover(digest, signature)
         }
 
+        /// # Recover function for Proof of Agreement, retrieving the Ethereum address from a signature.
+        ///
+        /// Similar to the previous recover functions, this one takes a ProofOfAgreement struct, computes
+        /// its hash, and uses it to create a compound message for ECDSA recovery. The signature and message
+        /// are then passed to the recover function to obtain the Ethereum address.
+        ///
+        /// # Arguments
+        ///
+        /// * `data` - ProofOfAgreement struct containing information about the agreement proof.
+        /// * `signature` - A 65-byte signature obtained from signing the ProofOfAgreement message.
+        ///
+        /// # Returns
+        ///
+        /// A 20-byte array representing the Ethereum address recovered from the ProofOfAgreement signature.
         #[ink(message)]
         pub fn recover_proof_of_agreement(
             &self,
@@ -521,6 +719,17 @@ pub mod daosign_eip712 {
             self.recover(digest, signature)
         }
 
+        /// # Convert ProofOfAuthority struct to EIP-712 formatted message.
+        ///
+        /// This function takes a ProofOfAuthority struct and creates an EIP-712 formatted message.
+        ///
+        /// # Arguments
+        ///
+        /// * `message` - ProofOfAuthority struct to be converted to the EIP-712 message format.
+        ///
+        /// # Returns
+        ///
+        /// An EIP712ProofOfAuthority struct representing the EIP-712 formatted message for ProofOfAuthority.
         #[ink(message)]
         pub fn to_eip712_message_proof_of_authority(
             &self,
@@ -534,6 +743,18 @@ pub mod daosign_eip712 {
             }
         }
 
+        /// # Convert ProofOfSignature struct to EIP-712 formatted message.
+        ///
+        /// Similar to the previous function, this one takes a ProofOfSignature struct and creates
+        /// an EIP-712 formatted message.
+        ///
+        /// # Arguments
+        ///
+        /// * `message` - ProofOfSignature struct to be converted to the EIP-712 message format.
+        ///
+        /// # Returns
+        ///
+        /// An EIP712ProofOfSignature struct representing the EIP-712 formatted message for ProofOfSignature.
         #[ink(message)]
         pub fn to_eip712_message_proof_of_signature(
             &self,
@@ -547,6 +768,18 @@ pub mod daosign_eip712 {
             }
         }
 
+        /// # Convert ProofOfAgreement struct to EIP-712 formatted message.
+        ///
+        /// Similar to the previous functions, this one takes a ProofOfAgreement struct and creates
+        /// an EIP-712 formatted message.
+        ///
+        /// # Arguments
+        ///
+        /// * `message` - ProofOfAgreement struct to be converted to the EIP-712 message format.
+        ///
+        /// # Returns
+        ///
+        /// An EIP712ProofOfAgreement struct representing the EIP-712 formatted message for ProofOfAgreement.
         #[ink(message)]
         pub fn to_eip712_message_proof_of_agreement(
             &self,

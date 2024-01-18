@@ -30,6 +30,13 @@ npm run build
 1. `cd contracts/<daosign_app|daosign_eip712>`
 2. `cargo test` to test or `cargo test -- --nocapture` to test and see `debug_println!` output
 
+Note: to run unit tests for `daosign_eip712`, one has to comment out the following `derive`:
+```
+#[ink(storage)]
+// #[derive(Debug)]
+pub struct DAOsignEIP712 {
+```
+
 
 ## Linting
 ```
