@@ -15,13 +15,16 @@ pub mod daosign_app {
     use ink::storage::Mapping;
     use scale::{Decode, Encode};
 
+    // Length of IPFS Content Identifier (CID)
     const IPFS_CID_LENGTH: usize = 46;
+    // Default value for zero address
     const ZERO_ADDR: [u8; 32] = [0u8; 32];
 
     //
     // structs definition
     //
 
+    /// Represents a signed Proof-of-Authority with the message, signature, and proof CID.
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
     pub struct SignedProofOfAuthority {
@@ -30,13 +33,7 @@ pub mod daosign_app {
         proof_cid: String,
     }
 
-    #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
-    pub struct SignedProofOfAuthorityMsg {
-        message: EIP712ProofOfAuthority,
-        signature: Vec<u8>,
-    }
-
+    /// Represents a signed Proof-of-Signature with the message, signature, and proof CID.
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
     pub struct SignedProofOfSignature {
@@ -45,13 +42,7 @@ pub mod daosign_app {
         proof_cid: String,
     }
 
-    #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
-    pub struct SignedProofOfSignatureMsg {
-        message: EIP712ProofOfSignature,
-        signature: Vec<u8>,
-    }
-
+    /// Represents a signed Proof-of-Agreement with the message, signature, and proof CID.
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
     pub struct SignedProofOfAgreement {
@@ -60,6 +51,23 @@ pub mod daosign_app {
         proof_cid: String,
     }
 
+    /// Represents a signed Proof-of-Authority with the EIP712 message, signature, and proof CID.
+    #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
+    pub struct SignedProofOfAuthorityMsg {
+        message: EIP712ProofOfAuthority,
+        signature: Vec<u8>,
+    }
+
+    /// Represents a signed Proof-of-Signature with the EIP712 message, signature, and proof CID.
+    #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
+    pub struct SignedProofOfSignatureMsg {
+        message: EIP712ProofOfSignature,
+        signature: Vec<u8>,
+    }
+
+    /// Represents a signed Proof-of-Agreement with the EIP712 message, signature, and proof CID.
     #[derive(Debug, Clone, PartialEq, Eq, Decode, Encode)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
     pub struct SignedProofOfAgreementMsg {
@@ -71,21 +79,25 @@ pub mod daosign_app {
     // DAOsignApp contract
     //
 
+    /// Event emitted when a new Proof-of-Authority is added.
     #[ink(event)]
     pub struct NewProofOfAuthority {
         data: SignedProofOfAuthority,
     }
 
+    /// Event emitted when a new Proof-of-Signature is added.
     #[ink(event)]
     pub struct NewProofOfSignature {
         data: SignedProofOfSignature,
     }
 
+    /// Event emitted when a new Proof-of-Agreement is added.
     #[ink(event)]
     pub struct NewProofOfAgreement {
         data: SignedProofOfAgreement,
     }
 
+    /// Main storage structure for DAOsignApp contract.
     #[ink(storage)]
     pub struct DAOsignApp {
         eip712: DAOsignEIP712,
@@ -96,18 +108,19 @@ pub mod daosign_app {
         poau_signers_idx: Mapping<(String, [u8; 32]), u32>,
     }
 
+    /// DAOsignApp contract implementation.
     impl DAOsignApp {
-        fn vec_to_array(vec: Vec<u8>) -> Result<[u8; 65], &'static str> {
-            if vec.len() == 65 {
-                let array: [u8; 65] = vec.try_into().map_err(|_| "Conversion failed")?;
-                Ok(array)
-            } else {
-                Err("Vector does not have exactly 65 elements")
-            }
-        }
-    }
-
-    impl DAOsignApp {
+        /// # Ink! constructor for creating a new DAOsignApp instance.
+        ///
+        /// This constructor initializes a new DAOsignApp contract instance with the provided EIP712 domain.
+        ///
+        /// # Arguments
+        ///
+        /// * `domain` - EIP712Domain struct representing the domain of the contract.
+        ///
+        /// # Returns
+        ///
+        /// A new instance of DAOsignApp.
         #[ink(constructor)]
         pub fn new(domain: EIP712Domain) -> Self {
             let eip712 = DAOsignEIP712::new(domain);
@@ -121,6 +134,14 @@ pub mod daosign_app {
             }
         }
 
+        /// # Ink! message to store a Proof of Authority.
+        ///
+        /// This function stores a Proof of Authority along with its signature and validates the signature and message.
+        /// If the data is valid, it is stored in the contract, and relevant mappings are updated.
+        ///
+        /// # Arguments
+        ///
+        /// * `data` - SignedProofOfAuthority struct containing the proof of authority data and its signature.
         #[ink(message)]
         pub fn store_proof_of_authority(&mut self, data: SignedProofOfAuthority) {
             // convert address stored in 32 bytes to 20 bytes
@@ -155,6 +176,14 @@ pub mod daosign_app {
             Self::env().emit_event(NewProofOfAuthority { data });
         }
 
+        /// # Ink! message to store a Proof of Signature.
+        ///
+        /// This function stores a Proof of Signature along with its signature and validates the signature and message.
+        /// If the data is valid, it is stored in the contract, and relevant mappings are updated.
+        ///
+        /// # Arguments
+        ///
+        /// * `data` - SignedProofOfSignature struct containing the proof of signature data and its signature.
         #[ink(message)]
         pub fn store_proof_of_signature(&mut self, data: SignedProofOfSignature) {
             // convert address stored in 32 bytes to 20 bytes
@@ -183,6 +212,13 @@ pub mod daosign_app {
             Self::env().emit_event(NewProofOfSignature { data });
         }
 
+        /// # Ink! message to store a Proof of Agreement.
+        ///
+        /// This function stores a Proof of Agreement and validates the message. If the data is valid, it is stored in the contract.
+        ///
+        /// # Arguments
+        ///
+        /// * `data` - SignedProofOfAgreement struct containing the proof of agreement data.
         #[ink(message)]
         pub fn store_proof_of_agreement(&mut self, data: SignedProofOfAgreement) {
             // Validate the data
@@ -197,21 +233,53 @@ pub mod daosign_app {
             Self::env().emit_event(NewProofOfAgreement { data });
         }
 
+        /// # Ink! message to retrieve a Proof of Authority by its CID.
+        ///
+        /// This function retrieves a stored Proof of Authority by its CID.
+        ///
+        /// # Arguments
+        ///
+        /// * `cid` - String representing the CID of the Proof of Authority.
         #[ink(message)]
         pub fn get_proof_of_authority(&self, cid: String) -> SignedProofOfAuthority {
             self.poaus.get(cid).unwrap()
         }
 
+        /// # Ink! message to retrieve a Proof of Signature by its CID.
+        ///
+        /// This function retrieves a stored Proof of Signature by its CID.
+        ///
+        /// # Arguments
+        ///
+        /// * `cid` - String representing the CID of the Proof of Signature.
         #[ink(message)]
         pub fn get_proof_of_signature(&self, cid: String) -> SignedProofOfSignature {
             self.posis.get(cid).unwrap()
         }
 
+        /// # Ink! message to retrieve a Proof of Agreement by its CID.
+        ///
+        /// This function retrieves a stored Proof of Agreement by its CID.
+        ///
+        /// # Arguments
+        ///
+        /// * `cid` - String representing the CID of the Proof of Agreement.
         #[ink(message)]
         pub fn get_proof_of_agreement(&self, cid: String) -> SignedProofOfAgreement {
             self.poags.get(cid).unwrap()
         }
 
+        /// # Validates a signed Proof-of-Authority message.
+        ///
+        /// This function performs various checks on the provided `SignedProofOfAuthority` data to ensure its validity.
+        ///
+        /// # Arguments
+        ///
+        /// * `data` - SignedProofOfAuthority struct representing the signed proof.
+        ///
+        /// # Returns
+        ///
+        /// Returns `true` if the validation passes, otherwise raises assertions.
         pub fn validate_signed_proof_of_authority(&self, data: SignedProofOfAuthority) -> bool {
             assert!(data.proof_cid.len() == IPFS_CID_LENGTH, "Invalid proof CID");
             assert!(data.message.app == "daosign", "Invalid app name");
@@ -229,6 +297,17 @@ pub mod daosign_app {
             true
         }
 
+        /// # Validates a signed Proof-of-Signature message.
+        ///
+        /// This function performs various checks on the provided `SignedProofOfSignature` data to ensure its validity.
+        ///
+        /// # Arguments
+        ///
+        /// * `data` - SignedProofOfSignature struct representing the signed proof.
+        ///
+        /// # Returns
+        ///
+        /// Returns `true` if the validation passes, otherwise raises assertions.
         pub fn validate_signed_proof_of_signature(&self, data: SignedProofOfSignature) -> bool {
             assert!(data.proof_cid.len() == IPFS_CID_LENGTH, "Invalid proof CID");
             assert!(data.message.app == "daosign", "Invalid app name");
@@ -257,6 +336,17 @@ pub mod daosign_app {
             true
         }
 
+        /// # Validates a signed Proof-of-Agreement message.
+        ///
+        /// This function performs various checks on the provided `SignedProofOfAgreement` data to ensure its validity.
+        ///
+        /// # Arguments
+        ///
+        /// * `data` - SignedProofOfAgreement struct representing the signed proof.
+        ///
+        /// # Returns
+        ///
+        /// Returns `true` if the validation passes, otherwise raises assertions.
         pub fn validate_signed_proof_of_agreement(&self, data: SignedProofOfAgreement) -> bool {
             assert!(data.proof_cid.len() == IPFS_CID_LENGTH, "Invalid proof CID");
             assert!(data.message.app == "daosign", "Invalid app name");
@@ -303,6 +393,26 @@ pub mod daosign_app {
             }
 
             true
+        }
+
+        /// # Helper function to convert a vector of u8 to a fixed-size array of u8.
+        ///
+        /// This function takes a vector of u8 with exactly 65 elements and converts it into a fixed-size array of u8.
+        ///
+        /// # Arguments
+        ///
+        /// * `vec` - Vector of u8 with exactly 65 elements.
+        ///
+        /// # Returns
+        ///
+        /// Result containing the converted array on success, or an error message on failure.
+        fn vec_to_array(vec: Vec<u8>) -> Result<[u8; 65], &'static str> {
+            if vec.len() == 65 {
+                let array: [u8; 65] = vec.try_into().map_err(|_| "Conversion failed")?;
+                Ok(array)
+            } else {
+                Err("Vector does not have exactly 65 elements")
+            }
         }
     }
 
