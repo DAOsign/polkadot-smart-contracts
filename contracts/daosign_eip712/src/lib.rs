@@ -197,7 +197,7 @@ pub mod daosign_eip712 {
         pub proof_of_agreement_types: EIP712ProofOfAgreementTypes,
     }
 
-    /// Implementation of DAOsignEIP712 Ink! constructor and private Rust functions needed for it
+    /// DAOsignEIP712 contract implementation.
     impl DAOsignEIP712 {
         /// # Ink! constructor for creating a new DAOsignEIP712 instance.
         ///
@@ -231,203 +231,6 @@ pub mod daosign_eip712 {
             instance
         }
 
-        /// # Helper function to initialize `domain_hash` variable with DAOsign proofs `domain`.
-        ///
-        /// This function takes the provided EIP712 domain and calculates its hash, which is then stored in the `domain_hash` variable.
-        ///
-        /// # Arguments
-        ///
-        /// * `domain` - EIP712Domain struct representing the domain of the contract.
-        fn init_domainhash(&mut self, domain: EIP712Domain) -> () {
-            self.domain_hash = self.hash_domain(domain);
-        }
-
-        /// # Helper function to initialize hashes of all EIP-712-styled structs. This will be needed
-        /// # later on to hash proofs.
-        ///
-        /// This function initializes the type hashes for EIP712Domain, Signer, Proof-of-Authority, Proof-of-Signature, and Proof-of-Agreement.
-        fn init_typehashes(&mut self) -> () {
-            self.eip712domain_typehash = Self::keccak_hash("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
-            self.signer_typehash = Self::keccak_hash("Signer(address addr,string metadata)");
-            self.proof_of_authority_typehash = Self::keccak_hash("ProofOfAuthority(string name,address from,string agreementCID,Signer[] signers,string app,uint256 timestamp,string metadata)Signer(address addr,string metadata)");
-            self.proof_of_signature_typehash = Self::keccak_hash("ProofOfSignature(string name,address signer,string agreementCID,string app,uint256 timestamp,string metadata)");
-            self.proof_of_agreement_typehash = Self::keccak_hash("ProofOfAgreement(string agreementCID,string[] signatureCIDs,string app,uint256 timestamp,string metadata)");
-        }
-
-        /// # Helper function to initialize EIP-712, Signer, Proof-of-Authority, Proof-of-Signature, and
-        /// # Proof-of-Agreement domain types.
-        ///
-        /// This function sets up the EIP712 types needed for hashing proofs and stores them in the contract's storage.
-        fn init_eip712_types(&mut self) -> () {
-            // Initialize EIP712Domain types
-            let domain_types = Vec::from([
-                EIP712PropertyType {
-                    name: "name".to_string(),
-                    kind: "string".to_string(),
-                },
-                EIP712PropertyType {
-                    name: "version".to_string(),
-                    kind: "string".to_string(),
-                },
-                EIP712PropertyType {
-                    name: "chainId".to_string(),
-                    kind: "uint256".to_string(),
-                },
-                EIP712PropertyType {
-                    name: "verifyingContract".to_string(),
-                    kind: "address".to_string(),
-                },
-            ]);
-
-            // Initialize Signer types
-            let signer_types = Vec::from([
-                EIP712PropertyType {
-                    name: "addr".to_string(),
-                    kind: "address".to_string(),
-                },
-                EIP712PropertyType {
-                    name: "metadata".to_string(),
-                    kind: "string".to_string(),
-                },
-            ]);
-
-            // Initialize ProofOfAuthority types
-            let proof_of_authority_types = Vec::from([
-                EIP712PropertyType {
-                    name: "name".to_string(),
-                    kind: "string".to_string(),
-                },
-                EIP712PropertyType {
-                    name: "from".to_string(),
-                    kind: "address".to_string(),
-                },
-                EIP712PropertyType {
-                    name: "agreementCID".to_string(),
-                    kind: "string".to_string(),
-                },
-                EIP712PropertyType {
-                    name: "signers".to_string(),
-                    kind: "Signer[]".to_string(),
-                },
-                EIP712PropertyType {
-                    name: "app".to_string(),
-                    kind: "string".to_string(),
-                },
-                EIP712PropertyType {
-                    name: "timestamp".to_string(),
-                    kind: "uint256".to_string(),
-                },
-                EIP712PropertyType {
-                    name: "metadata".to_string(),
-                    kind: "string".to_string(),
-                },
-            ]);
-
-            // Initialize ProofOfSignature types
-            let proof_of_signature_types = Vec::from([
-                EIP712PropertyType {
-                    name: "name".to_string(),
-                    kind: "string".to_string(),
-                },
-                EIP712PropertyType {
-                    name: "signer".to_string(),
-                    kind: "address".to_string(),
-                },
-                EIP712PropertyType {
-                    name: "agreementCID".to_string(),
-                    kind: "string".to_string(),
-                },
-                EIP712PropertyType {
-                    name: "app".to_string(),
-                    kind: "string".to_string(),
-                },
-                EIP712PropertyType {
-                    name: "timestamp".to_string(),
-                    kind: "uint256".to_string(),
-                },
-                EIP712PropertyType {
-                    name: "metadata".to_string(),
-                    kind: "string".to_string(),
-                },
-            ]);
-
-            // Initialize ProofOfAgreement types
-            let proof_of_agreement_types = Vec::from([
-                EIP712PropertyType {
-                    name: "agreementCID".to_string(),
-                    kind: "string".to_string(),
-                },
-                EIP712PropertyType {
-                    name: "signatureCIDs".to_string(),
-                    kind: "string[]".to_string(),
-                },
-                EIP712PropertyType {
-                    name: "app".to_string(),
-                    kind: "string".to_string(),
-                },
-                EIP712PropertyType {
-                    name: "timestamp".to_string(),
-                    kind: "uint256".to_string(),
-                },
-                EIP712PropertyType {
-                    name: "metadata".to_string(),
-                    kind: "string".to_string(),
-                },
-            ]);
-
-            // Set the types in the contract's storage
-            self.proof_of_authority_types.eip712_domain = domain_types.clone();
-            self.proof_of_authority_types.signer = signer_types.clone();
-            self.proof_of_authority_types.proof_of_authority = proof_of_authority_types.clone();
-
-            self.proof_of_signature_types.eip712_domain = domain_types.clone();
-            self.proof_of_signature_types.proof_of_signature = proof_of_signature_types.clone();
-
-            self.proof_of_agreement_types.eip712_domain = domain_types;
-            self.proof_of_agreement_types.proof_of_agreement = proof_of_agreement_types;
-        }
-
-        /// # Helper function to get Keccak-256 hash of any given string.
-        ///
-        /// This function takes a string input and calculates its Keccak-256 hash.
-        ///
-        /// # Arguments
-        ///
-        /// * `input` - String to be hashed.
-        ///
-        /// # Returns
-        ///
-        /// A 32-byte array representing the Keccak-256 hash of the input string.
-        fn keccak_hash(input: &str) -> [u8; 32] {
-            let mut keccak = Keccak::v256();
-            let mut output = [0u8; 32];
-            keccak.update(input.as_bytes());
-            keccak.finalize(&mut output);
-            output
-        }
-
-        /// # Helper function to get Keccak-256 hash of any given array of bytes.
-        ///
-        /// This function takes an array of bytes as input and calculates its Keccak-256 hash.
-        ///
-        /// # Arguments
-        ///
-        /// * `input` - Array of bytes to be hashed.
-        ///
-        /// # Returns
-        ///
-        /// A 32-byte array representing the Keccak-256 hash of the input array of bytes.
-        fn keccak_hash_bytes(input: &[u8]) -> [u8; 32] {
-            let mut keccak = Keccak::v256();
-            let mut output = [0u8; 32];
-            keccak.update(input);
-            keccak.finalize(&mut output);
-            output
-        }
-    }
-
-    /// Implementation of DAOsignEIP712 public Ink! functions
-    impl DAOsignEIP712 {
         /// # Ink! function to get the hash of an EIP712Domain struct.
         ///
         /// This function takes an EIP712Domain struct and calculates its hash using the specified encoding rules.
@@ -791,6 +594,200 @@ pub mod daosign_eip712 {
                 primary_type: "ProofOfAgreement".to_string(),
                 message,
             }
+        }
+
+        /// # Helper function to initialize `domain_hash` variable with DAOsign proofs `domain`.
+        ///
+        /// This function takes the provided EIP712 domain and calculates its hash, which is then stored in the `domain_hash` variable.
+        ///
+        /// # Arguments
+        ///
+        /// * `domain` - EIP712Domain struct representing the domain of the contract.
+        fn init_domainhash(&mut self, domain: EIP712Domain) -> () {
+            self.domain_hash = self.hash_domain(domain);
+        }
+
+        /// # Helper function to initialize hashes of all EIP-712-styled structs. This will be needed
+        /// # later on to hash proofs.
+        ///
+        /// This function initializes the type hashes for EIP712Domain, Signer, Proof-of-Authority, Proof-of-Signature, and Proof-of-Agreement.
+        fn init_typehashes(&mut self) -> () {
+            self.eip712domain_typehash = Self::keccak_hash("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
+            self.signer_typehash = Self::keccak_hash("Signer(address addr,string metadata)");
+            self.proof_of_authority_typehash = Self::keccak_hash("ProofOfAuthority(string name,address from,string agreementCID,Signer[] signers,string app,uint256 timestamp,string metadata)Signer(address addr,string metadata)");
+            self.proof_of_signature_typehash = Self::keccak_hash("ProofOfSignature(string name,address signer,string agreementCID,string app,uint256 timestamp,string metadata)");
+            self.proof_of_agreement_typehash = Self::keccak_hash("ProofOfAgreement(string agreementCID,string[] signatureCIDs,string app,uint256 timestamp,string metadata)");
+        }
+
+        /// # Helper function to initialize EIP-712, Signer, Proof-of-Authority, Proof-of-Signature, and
+        /// # Proof-of-Agreement domain types.
+        ///
+        /// This function sets up the EIP712 types needed for hashing proofs and stores them in the contract's storage.
+        fn init_eip712_types(&mut self) -> () {
+            // Initialize EIP712Domain types
+            let domain_types = Vec::from([
+                EIP712PropertyType {
+                    name: "name".to_string(),
+                    kind: "string".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "version".to_string(),
+                    kind: "string".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "chainId".to_string(),
+                    kind: "uint256".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "verifyingContract".to_string(),
+                    kind: "address".to_string(),
+                },
+            ]);
+
+            // Initialize Signer types
+            let signer_types = Vec::from([
+                EIP712PropertyType {
+                    name: "addr".to_string(),
+                    kind: "address".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "metadata".to_string(),
+                    kind: "string".to_string(),
+                },
+            ]);
+
+            // Initialize ProofOfAuthority types
+            let proof_of_authority_types = Vec::from([
+                EIP712PropertyType {
+                    name: "name".to_string(),
+                    kind: "string".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "from".to_string(),
+                    kind: "address".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "agreementCID".to_string(),
+                    kind: "string".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "signers".to_string(),
+                    kind: "Signer[]".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "app".to_string(),
+                    kind: "string".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "timestamp".to_string(),
+                    kind: "uint256".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "metadata".to_string(),
+                    kind: "string".to_string(),
+                },
+            ]);
+
+            // Initialize ProofOfSignature types
+            let proof_of_signature_types = Vec::from([
+                EIP712PropertyType {
+                    name: "name".to_string(),
+                    kind: "string".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "signer".to_string(),
+                    kind: "address".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "agreementCID".to_string(),
+                    kind: "string".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "app".to_string(),
+                    kind: "string".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "timestamp".to_string(),
+                    kind: "uint256".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "metadata".to_string(),
+                    kind: "string".to_string(),
+                },
+            ]);
+
+            // Initialize ProofOfAgreement types
+            let proof_of_agreement_types = Vec::from([
+                EIP712PropertyType {
+                    name: "agreementCID".to_string(),
+                    kind: "string".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "signatureCIDs".to_string(),
+                    kind: "string[]".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "app".to_string(),
+                    kind: "string".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "timestamp".to_string(),
+                    kind: "uint256".to_string(),
+                },
+                EIP712PropertyType {
+                    name: "metadata".to_string(),
+                    kind: "string".to_string(),
+                },
+            ]);
+
+            // Set the types in the contract's storage
+            self.proof_of_authority_types.eip712_domain = domain_types.clone();
+            self.proof_of_authority_types.signer = signer_types.clone();
+            self.proof_of_authority_types.proof_of_authority = proof_of_authority_types.clone();
+
+            self.proof_of_signature_types.eip712_domain = domain_types.clone();
+            self.proof_of_signature_types.proof_of_signature = proof_of_signature_types.clone();
+
+            self.proof_of_agreement_types.eip712_domain = domain_types;
+            self.proof_of_agreement_types.proof_of_agreement = proof_of_agreement_types;
+        }
+
+        /// # Helper function to get Keccak-256 hash of any given string.
+        ///
+        /// This function takes a string input and calculates its Keccak-256 hash.
+        ///
+        /// # Arguments
+        ///
+        /// * `input` - String to be hashed.
+        ///
+        /// # Returns
+        ///
+        /// A 32-byte array representing the Keccak-256 hash of the input string.
+        fn keccak_hash(input: &str) -> [u8; 32] {
+            let mut keccak = Keccak::v256();
+            let mut output = [0u8; 32];
+            keccak.update(input.as_bytes());
+            keccak.finalize(&mut output);
+            output
+        }
+
+        /// # Helper function to get Keccak-256 hash of any given array of bytes.
+        ///
+        /// This function takes an array of bytes as input and calculates its Keccak-256 hash.
+        ///
+        /// # Arguments
+        ///
+        /// * `input` - Array of bytes to be hashed.
+        ///
+        /// # Returns
+        ///
+        /// A 32-byte array representing the Keccak-256 hash of the input array of bytes.
+        fn keccak_hash_bytes(input: &[u8]) -> [u8; 32] {
+            let mut keccak = Keccak::v256();
+            let mut output = [0u8; 32];
+            keccak.update(input);
+            keccak.finalize(&mut output);
+            output
         }
     }
 
