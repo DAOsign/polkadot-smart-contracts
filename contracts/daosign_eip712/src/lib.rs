@@ -1,7 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-/// This is the main DAOsign smart contract that stores all proofs: Proof-of-Authority,
-/// Proof-of-Signature, and Proof-of-Agreement
+//! # DAOsign EIP-712 Contract
+//!
+//! This is a helper contract that is used by `daosign_app` which helps to verify EIP-712 signatures,
+//! and is tailored specifically to `daosign_app` contract.
 #[ink::contract]
 pub mod daosign_eip712 {
     use ink::prelude::{

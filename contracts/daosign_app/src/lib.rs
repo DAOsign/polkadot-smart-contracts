@@ -1,5 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
+//! # DAOsign App Contract
+//!
+//! This is the main DAOsign smart contract that stores all proofs: Proof-of-Authority,
+//! Proof-of-Signature, and Proof-of-Agreement
 #[ink::contract]
 pub mod daosign_app {
     use daosign_eip712::daosign_eip712::{

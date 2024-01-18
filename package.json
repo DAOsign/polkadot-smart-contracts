@@ -6,6 +6,7 @@
     "build": "npx swanky contract compile --all",
     "node:install": "npx swanky node install",
     "node:start": "npx swanky node start",
+    "docs": "cargo doc --no-deps --open",
     "test": "npx mocha --config .mocharc.json"
   },
   "engines": {
