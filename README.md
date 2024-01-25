@@ -13,6 +13,31 @@ DAOsign EIP712 is a helper contract used by the DAOsign App contract, facilitati
 ### DAOsign App
 Meanwhile, the DAOsign App contract is the primary DAOsign smart contract that stores all proofs: Proof-of-Authority, Proof-of-Signature, and Proof-of-Agreement. This contract also allows users to validate DAOsign-generated proofs.
 
+## Table of Contents
+- [DAOsign Ink! Proofs Smart Contracts](#daosign-ink-proofs-smart-contracts)
+  - [Overview](#overview)
+    - [DAOsign EIP712](#daosign-eip712)
+    - [DAOsign App](#daosign-app)
+  - [Table of Contents](#table-of-contents)
+  - [Docs](#docs)
+  - [How to Use These Contracts for DAOsign Proofs Verification](#how-to-use-these-contracts-for-daosign-proofs-verification)
+    - [Ensure that the proof was stored on Polkadot](#ensure-that-the-proof-was-stored-on-polkadot)
+    - [Open a deployed DAOsign App in a block explorer and locate the desired `validate` function](#open-a-deployed-daosign-app-in-a-block-explorer-and-locate-the-desired-validate-function)
+    - [Call the desired validate function with signed proof data as a function parameter](#call-the-desired-validate-function-with-signed-proof-data-as-a-function-parameter)
+  - [Prerequisites](#prerequisites)
+    - [Install Dependencies](#install-dependencies)
+    - [Build](#build)
+  - [Testing](#testing)
+    - [Unit Tests](#unit-tests)
+      - [DAOsign App](#daosign-app-1)
+      - [DAOsign EIP712](#daosign-eip712-1)
+    - [Integration Tests](#integration-tests)
+    - [With Docker](#with-docker)
+    - [Locally](#locally)
+  - [Other](#other)
+    - [Developer Docs](#developer-docs)
+    - [Linting](#linting)
+
 ## Docs
 Documentation is located at https://daosign.github.io/polkadot-smart-contracts/daosign_app.
 To see the docs directly for each contract, please follow these links:
