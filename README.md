@@ -1,19 +1,21 @@
 # DAOsign Ink! Proofs Smart Contracts
 
 ## Overview
-DAOsign is a decentralized platform for agreements with publicly verifiable and authorized cryptographic proofs-of-signature designed for DAOs.For a more in-depth overview of DAOsign proofs, you can refer to [this document](./docs/DAOsign%20Proofs%20Technical%20Design.pdf).
+DAOsign is a decentralized platform for agreements with publicly verifiable and authorized cryptographic proofs-of-signature designed for DAOs. For a more in-depth overview of DAOsign proofs, you can refer to [this document](./docs/DAOsign%20Proofs%20Technical%20Design.pdf).
 
-There are two contracts in this repository:
+This repository contains two smart contracts:
 - <a href="./contracts/daosign_app/" target="_blank">DAOsign App</a>
 - <a href="./contracts/daosign_eip712/" target="_blank">DAOsign EIP712</a>
 
+### DAOsign EIP712
 DAOsign EIP712 is a helper contract used by the DAOsign App contract, facilitating the verification of EIP-712 signatures tailored specifically to the DAOsign App contract.
 
+### DAOsign App
 Meanwhile, the DAOsign App contract is the primary DAOsign smart contract that stores all proofs: Proof-of-Authority, Proof-of-Signature, and Proof-of-Agreement. This contract also allows users to validate DAOsign-generated proofs.
 
 ## Docs
 Documentation is located at https://daosign.github.io/polkadot-smart-contracts/daosign_app.
-To see the docs directly for each contract please follow these links:
+To see the docs directly for each contract, please follow these links:
 - <a href="https://daosign.github.io/polkadot-smart-contracts/daosign_app/daosign_app/struct.DAOsignApp.html" target="_blank">DAOsign App</a>
 - <a href="https://daosign.github.io/polkadot-smart-contracts/daosign_eip712/daosign_eip712/struct.DAOsignEIP712.html" target="_blank">DAOsign EIP712</a>
 
@@ -31,7 +33,7 @@ The output of this function will be either `true` - the proof is valid, or `fals
 
 ## Prerequisites
 
-To get started with the project you should first do a few steps. After cloning this repository, open your Terminal and navigate to the project root. From there run the following commands one by one.
+To get started with the project, you should first follow a few steps. After cloning this repository, open your Terminal and navigate to the project root. From there, run the following commands one by one.
 
 ### Install Dependencies
 ```
@@ -45,31 +47,33 @@ npm run build
 
 ## Testing
 
-DAOsign features three ways of ensuring contracts quality:
+DAOsign features three ways of ensuring contract quality:
 
 - Unit tests for every smart contract
 - Integration tests to be run both locally and with a dedicated Docker file
 - Manual review of the code
 
 ### Unit Tests
-Out unit tests are located withing each of the contract's own file.
+Our unit tests are located within each of the contract's own files.
 
 These unit tests cover every single Ink! function inside every contract to ensure contracts code quality.
 
-You can test each smart contract from their own directory by running `cargo test` command.
+You can test each smart contract from its directory by running `cargo test` command.
 
-The full step-by-step guide to run unit tests is as following:
-1. In the root directory of the project open a Terminal and run `cd contracts/<daosign_app|daosign_eip712>` to go to the subdirectory of the contract, you want to run tests for.
+The full step-by-step guide to run unit tests is as follows:
+
+1. In the root directory of the project, open a Terminal and run `cd contracts/<daosign_app|daosign_eip712>` to go to the subdirectory of the contract you want to run tests for.
 2. Once in directory, run `cargo test` to run unit tests for this contract or `cargo test -- --nocapture` to both run the unit tests and see `debug_println!` output (used for development purposes).
 
-Note: to run unit tests for `daosign_eip712`, one has to comment out the following `derive`:
+Note: to run unit tests for `daosign_eip712`, one has to comment out the following `derive` in the `contracts/daosign_eip712/lib.rs` file:
 ```
 #[ink(storage)]
 // #[derive(Debug)]
 pub struct DAOsignEIP712 {
 ```
 
-The expected output of the unit tests is the following
+The expected output of the unit tests is the following:
+
 #### DAOsign App
 ```
     Finished test [unoptimized + debuginfo] target(s) in 0.11s
@@ -118,17 +122,17 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 ### Integration Tests
 
-To be able to use integration tests not only for Ink! but for other languages as well, we have decided to use Typescript for this purpose. The framework that allowed that is Swanky Suite about which you can read more [here](https://docs.astar.network/docs/build/wasm/swanky-suite/cli).
+To use integration tests not only for Ink! but for other languages as well, we have decided to use Typescript for this purpose. The framework that allowed that is Swanky Suite about which you can read more [here](https://docs.astar.network/docs/build/wasm/swanky-suite/cli).
 
-For convenience of the end user we have provided two ways to run integration tests: with Docker or locally. A more detailed description of how to do that please see below.
+For the convenience of the end-user, we have provided two ways to run integration tests: with Docker or locally. A more detailed description of how to do that please see below.
 
 ### With Docker
 Running tests with Docker is easy but to do that you want to make sure you have Docker installed on your computer, and it's running.
 
-To run integration tests with Docker, you should follow a 3 easy steps.
+To run integration tests with Docker, you should follow 3 easy steps.
 
-1. Firstly, you have to build Docker image. To do that, in the root folder of the project open a Terminal and run `docker build -t daosign-proofs .`
-2. Secondly, run image that will contain the project with all environment set up for you. Just run `docker run -d -p 9944:9944 --name daosign-proofs daosign-proofs` in your Terminal.
+1. Firstly, you have to build the Docker image. To do that, in the root folder of the project, open a Terminal and run `docker build -t daosign-proofs .`
+2. Secondly, run the image that will contain the project with all environment set up for you. Just run `docker run -d -p 9944:9944 --name daosign-proofs daosign-proofs` in your Terminal.
 3. Lastly, in the Terminal run `docker exec -it daosign-proofs npm run test` to execute integration tests.
 
 The expected output should be the following:
@@ -171,7 +175,7 @@ What can be run with Docker can also be replicated locally. To run integration t
 ## Other
 
 ### Developer Docs
-To see developer docs in your browser simply run:
+To see the developer docs in your browser simply run:
 ```
 npm run docs
 ```
