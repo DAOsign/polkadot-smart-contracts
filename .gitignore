@@ -297,3 +297,4 @@ vscode
 testReports/
 swanky-node
 *.log
+.idea
