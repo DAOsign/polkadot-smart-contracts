@@ -25,9 +25,9 @@ RUN rustup show
 # Install the Rust source component
 RUN rustup component add rust-src
 
-# Install cargo-contract and websocat
+# Install cargo-contract
+RUN cargo install cargo-dylint dylint-link --force websocat
 RUN cargo install --force cargo-contract --version 3.2.0
-RUN cargo install --force websocat
 
 # Build and run blockchain node
 # COPY package.json package-lock.json ./
