@@ -1,0 +1,20 @@
+name: Docker Build
+
+on:
+  # pull_request:
+  push:
+    branches:
+      - docker
+
+jobs:
+  build:
+    name: Run docker build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run docker build
+        run: docker build -t daosign-proofs .
+      - name: Run docker container
+        run: docker run -d -p 9944:9944 --name daosign-proofs daosign-proofs
+      - name: Run docker integration tests
+        run: docker exec -it -u root daosign-proofs npm run test
