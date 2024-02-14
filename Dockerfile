@@ -41,7 +41,7 @@ RUN npm run build
 # RUN cd contracts/daosign_eip712 && cargo test -- --nocapture
 
 # Run integration tests
-# RUN npm run node:install && echo "y" | npx swanky node install
+# RUN npm run node:install
 RUN npm run node:start
 
 # Run e2e tests
