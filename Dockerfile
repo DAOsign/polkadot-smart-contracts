@@ -44,7 +44,6 @@ RUN npm run build
 # Sleep for a while to keep the container running
 # RUN sleep 60
 
-# Run e2e tests
 # RUN npm run test
 
 # Keep container running
