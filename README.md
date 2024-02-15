@@ -158,7 +158,12 @@ To run integration tests with Docker, you should follow 3 easy steps.
 
 1. Firstly, you have to build the Docker image. To do that, in the root folder of the project, open a Terminal and run `docker build -t daosign-proofs .`
 2. Secondly, run the image that will contain the project with all environment set up for you. Just run `docker run -d -p 9944:9944 --name daosign-proofs daosign-proofs` in your Terminal.
-3. Lastly, in the Terminal run `docker exec -it daosign-proofs npm run test` to execute integration tests.
+3. Lastly, in the Terminal install `swanky-node` and run to execute integration tests:
+```
+docker exec -it -u root daosign-proofs npx swanky node install
+docker exec -it daosign-proofs /usr/src/app/bin/swanky-node --rpc-cors=all
+docker exec -it daosign-proofs npm run test
+```
 
 The expected output should be the following:
 

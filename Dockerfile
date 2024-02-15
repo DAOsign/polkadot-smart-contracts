@@ -1,18 +1,15 @@
-FROM node:20-alpine
+FROM node:20
 
 WORKDIR /usr/src/app
 
-# Install Rust and Cargo
-RUN apk add --no-cache \
+# Install Rust and Cargo dependencies
+RUN apt-get update && apt-get install -y \
     curl \
     gcc \
     g++ \
     make \
-    libressl-dev \
-    libressl \
-#    openssl \
-#    openssl-dev \
-    pkgconfig
+    libssl-dev \
+    pkg-config
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 
@@ -42,7 +39,10 @@ RUN npm run build
 
 # Run integration tests
 # RUN npm run node:install
-RUN npm run node:start
+# RUN npm run node:start
+
+# Sleep for a while to keep the container running
+# RUN sleep 60
 
 # Run e2e tests
 # RUN npm run test
