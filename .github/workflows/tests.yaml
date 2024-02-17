@@ -1,8 +1,9 @@
 name: Tests
 on:
   pull_request:
-    types: [opened, reopened, synchronize, ready_for_review]
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 env:
   NODE_JS_VER: 18.x
   SWANKY_NODE_VER: v1.2.0
