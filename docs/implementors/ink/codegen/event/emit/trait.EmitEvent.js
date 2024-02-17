@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"daosign_app":[["impl&lt;'a&gt; EmitEvent&lt;<a class=\"struct\" href=\"daosign_app/daosign_app/struct.DAOsignApp.html\" title=\"struct daosign_app::daosign_app::DAOsignApp\">DAOsignApp</a>&gt; for EnvAccess&lt;'a, &lt;<a class=\"struct\" href=\"daosign_app/daosign_app/struct.DAOsignApp.html\" title=\"struct daosign_app::daosign_app::DAOsignApp\">DAOsignApp</a> as ContractEnv&gt;::Env&gt;"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

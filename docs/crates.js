@@ -1,0 +1,1 @@
+window.ALL_CRATES = ["daosign_app","daosign_eip712"];
