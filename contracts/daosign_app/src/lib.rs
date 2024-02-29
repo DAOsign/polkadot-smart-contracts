@@ -282,7 +282,6 @@ pub mod daosign_app {
         /// Returns `true` if the validation passes, otherwise raises assertions.
         pub fn validate_signed_proof_of_authority(&self, data: SignedProofOfAuthority) -> bool {
             assert!(data.proof_cid.len() == IPFS_CID_LENGTH, "Invalid proof CID");
-            assert!(data.message.app == "daosign", "Invalid app name");
             assert!(
                 data.message.name == "Proof-of-Authority",
                 "Invalid proof name"
@@ -310,7 +309,6 @@ pub mod daosign_app {
         /// Returns `true` if the validation passes, otherwise raises assertions.
         pub fn validate_signed_proof_of_signature(&self, data: SignedProofOfSignature) -> bool {
             assert!(data.proof_cid.len() == IPFS_CID_LENGTH, "Invalid proof CID");
-            assert!(data.message.app == "daosign", "Invalid app name");
             assert!(
                 data.message.name == "Proof-of-Signature",
                 "Invalid proof name"
@@ -318,13 +316,13 @@ pub mod daosign_app {
 
             let i: usize = self
                 .poau_signers_idx
-                .get((&data.message.agreement_cid, &data.message.signer))
+                .get((&data.message.authority_cid, &data.message.signer))
                 .unwrap()
                 .try_into()
                 .unwrap();
             assert!(
                 self.poaus
-                    .get(&data.message.agreement_cid)
+                    .get(&data.message.authority_cid)
                     .unwrap()
                     .message
                     .signers[i]
@@ -349,10 +347,9 @@ pub mod daosign_app {
         /// Returns `true` if the validation passes, otherwise raises assertions.
         pub fn validate_signed_proof_of_agreement(&self, data: SignedProofOfAgreement) -> bool {
             assert!(data.proof_cid.len() == IPFS_CID_LENGTH, "Invalid proof CID");
-            assert!(data.message.app == "daosign", "Invalid app name");
             assert!(
                 self.poaus
-                    .get(&data.message.agreement_cid)
+                    .get(&data.message.authority_cid)
                     .unwrap()
                     .message
                     .name
@@ -361,7 +358,7 @@ pub mod daosign_app {
             );
             assert!(
                 self.poaus
-                    .get(&data.message.agreement_cid)
+                    .get(&data.message.authority_cid)
                     .unwrap()
                     .message
                     .signers
@@ -374,7 +371,7 @@ pub mod daosign_app {
                 let idx: usize = self
                     .poau_signers_idx
                     .get((
-                        &data.message.agreement_cid,
+                        &data.message.authority_cid,
                         &self.posis.get(signature_cid).unwrap().message.signer,
                     ))
                     .unwrap()
@@ -382,7 +379,7 @@ pub mod daosign_app {
                     .unwrap();
                 assert!(
                     self.poaus
-                        .get(&data.message.agreement_cid)
+                        .get(&data.message.authority_cid)
                         .unwrap()
                         .message
                         .signers[idx]
@@ -424,7 +421,7 @@ pub mod daosign_app {
         use ink::env::debug_println;
 
         fn store_proof_of_authority(instance: &mut DAOsignApp) {
-            let timestamp: u64 = 1702609459;
+            let timestamp: u64 = 1709210692;
             let timestamp_bytes = timestamp.to_be_bytes();
             let mut timestamp_arr: [u8; 32] = [0; 32];
             timestamp_arr[24..].copy_from_slice(&timestamp_bytes);
@@ -433,7 +430,7 @@ pub mod daosign_app {
             let mut from_arr: [u8; 32] = [0; 32];
             from_arr[12..].copy_from_slice(&from);
 
-            let signature = <[u8; 65]>::from_hex("130561fa55cda78e5a9ac0cb96e76409fa5112a39422604b043580a559a2a352641f71fe278c74192594c27d3d7c5b7f7995e63bd0ddc96124ae8532fe51d9111c").unwrap();
+            let signature = <[u8; 65]>::from_hex("717f122f3a98ddd50353a9b21705991cbbb8c29695910fae159901bd1213a22531e9f26d6e95197c4a422dd9ebe3809e7d1dc4886d96319d7fe13b4fbfaf46621b").unwrap();
             let proof_cid = String::from("ProofOfAuthority proof cid                    ");
 
             instance.store_proof_of_authority(SignedProofOfAuthority {
@@ -445,7 +442,6 @@ pub mod daosign_app {
                         addr: from_arr,
                         metadata: String::from("some metadata"),
                     }]),
-                    app: String::from("daosign"),
                     timestamp: timestamp_arr,
                     metadata: String::from("proof metadata"),
                 },
@@ -455,7 +451,7 @@ pub mod daosign_app {
         }
 
         fn store_proof_of_signature(instance: &mut DAOsignApp) {
-            let timestamp: u64 = 1702609048;
+            let timestamp: u64 = 1709210692;
             let timestamp_bytes = timestamp.to_be_bytes();
             let mut timestamp_arr: [u8; 32] = [0; 32];
             timestamp_arr[24..].copy_from_slice(&timestamp_bytes);
@@ -464,15 +460,14 @@ pub mod daosign_app {
             let mut signer_arr: [u8; 32] = [0; 32];
             signer_arr[12..].copy_from_slice(&signer);
 
-            let signature = <[u8; 65]>::from_hex("3873d49c83039d1624ec52ee6f6edbe0d31105a7aebcd1304e8326adc0807c3e692efc2b302370dbc0c7ea44904130e3468ff34ff1eaf65613ad8ba6db9405e31c").unwrap();
+            let signature = <[u8; 65]>::from_hex("574d3351d0c842fc1a75c1f682467439b42e77886baef427d10a7ce22e4d5f7e182a828b4cc35cc75429d0439bb3773814da162c6dfa2bfcd1451b74e8b7ba6b1b").unwrap();
             let proof_cid = String::from("ProofOfSignature proof cid                    ");
 
             instance.store_proof_of_signature(SignedProofOfSignature {
                 message: ProofOfSignature {
                     name: String::from("Proof-of-Signature"),
                     signer: signer_arr,
-                    agreement_cid: String::from("ProofOfAuthority proof cid                    "),
-                    app: String::from("daosign"),
+                    authority_cid: String::from("ProofOfAuthority proof cid                    "),
                     timestamp: timestamp_arr,
                     metadata: String::from("proof metadata"),
                 },
@@ -482,21 +477,20 @@ pub mod daosign_app {
         }
 
         fn store_proof_of_agreement(instance: &mut DAOsignApp) {
-            let timestamp: u64 = 1702609773;
+            let timestamp: u64 = 1709210692;
             let timestamp_bytes = timestamp.to_be_bytes();
             let mut timestamp_arr: [u8; 32] = [0; 32];
             timestamp_arr[24..].copy_from_slice(&timestamp_bytes);
 
-            let signature = <[u8; 65]>::from_hex("4f43008200f6dea8f74ec205d874593885872158406c2ef0f71dbe2459ba9118667d10451069d5015fc005c88b2337240c8f02edf904e08b4abf723dc20998a91b").unwrap();
+            let signature = <[u8; 65]>::from_hex("2d646235f801715f3ce282977894b5191329471ee2f30e828e851e026e41d9744ef897d5fe6d2dbaf77c9abc24641c72f26a138fd091d65048c8e0e8e9c6ae1f1c").unwrap();
             let proof_cid = String::from("ProofOfAgreement proof cid                    ");
 
             instance.store_proof_of_agreement(SignedProofOfAgreement {
                 message: ProofOfAgreement {
-                    agreement_cid: String::from("ProofOfAuthority proof cid                    "),
+                    authority_cid: String::from("ProofOfAuthority proof cid                    "),
                     signature_cids: Vec::from([String::from(
                         "ProofOfSignature proof cid                    ",
                     )]),
-                    app: String::from("daosign"),
                     timestamp: timestamp_arr,
                     metadata: String::from("proof metadata"),
                 },
@@ -510,11 +504,11 @@ pub mod daosign_app {
             let mut instance = DAOsignApp::new(EIP712Domain {
                 name: "daosign".into(),
                 version: "0.1.0".into(),
-                chain_id: [0; 32],
+                chain_id: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
                 verifying_contract: [0; 32].into(),
             });
 
-            let timestamp: u64 = 1702609459;
+            let timestamp: u64 = 1709210692;
             let timestamp_bytes = timestamp.to_be_bytes();
             let mut timestamp_arr: [u8; 32] = [0; 32];
             timestamp_arr[24..].copy_from_slice(&timestamp_bytes);
@@ -525,7 +519,7 @@ pub mod daosign_app {
             from_arr[12..].copy_from_slice(&from);
             debug_println!("{:?}", from_arr);
 
-            let signature = <[u8; 65]>::from_hex("130561fa55cda78e5a9ac0cb96e76409fa5112a39422604b043580a559a2a352641f71fe278c74192594c27d3d7c5b7f7995e63bd0ddc96124ae8532fe51d9111c").unwrap();
+            let signature = <[u8; 65]>::from_hex("717f122f3a98ddd50353a9b21705991cbbb8c29695910fae159901bd1213a22531e9f26d6e95197c4a422dd9ebe3809e7d1dc4886d96319d7fe13b4fbfaf46621b").unwrap();
             debug_println!("{:?}", signature);
             let proof_cid = String::from("ProofOfAuthority proof cid                    ");
 
@@ -538,7 +532,6 @@ pub mod daosign_app {
                         addr: from_arr,
                         metadata: String::from("some metadata"),
                     }]),
-                    app: String::from("daosign"),
                     timestamp: timestamp_arr,
                     metadata: String::from("proof metadata"),
                 },
@@ -603,10 +596,6 @@ pub mod daosign_app {
                 String::from("some metadata")
             );
             assert_eq!(
-                instance.poaus.get(proof_cid.clone()).unwrap().message.app,
-                String::from("daosign")
-            );
-            assert_eq!(
                 instance
                     .poaus
                     .get(proof_cid.clone())
@@ -638,7 +627,7 @@ pub mod daosign_app {
             let mut instance = DAOsignApp::new(EIP712Domain {
                 name: "daosign".into(),
                 version: "0.1.0".into(),
-                chain_id: [0; 32],
+                chain_id: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
                 verifying_contract: [0; 32].into(),
             });
 
@@ -652,7 +641,7 @@ pub mod daosign_app {
             // Test
             //
 
-            let timestamp: u64 = 1702609048;
+            let timestamp: u64 = 1709210692;
             let timestamp_bytes = timestamp.to_be_bytes();
             let mut timestamp_arr: [u8; 32] = [0; 32];
             timestamp_arr[24..].copy_from_slice(&timestamp_bytes);
@@ -661,15 +650,14 @@ pub mod daosign_app {
             let mut signer_arr: [u8; 32] = [0; 32];
             signer_arr[12..].copy_from_slice(&signer);
 
-            let signature = <[u8; 65]>::from_hex("3873d49c83039d1624ec52ee6f6edbe0d31105a7aebcd1304e8326adc0807c3e692efc2b302370dbc0c7ea44904130e3468ff34ff1eaf65613ad8ba6db9405e31c").unwrap();
+            let signature = <[u8; 65]>::from_hex("574d3351d0c842fc1a75c1f682467439b42e77886baef427d10a7ce22e4d5f7e182a828b4cc35cc75429d0439bb3773814da162c6dfa2bfcd1451b74e8b7ba6b1b").unwrap();
             let proof_cid = String::from("ProofOfSignature proof cid                    ");
 
             let data = SignedProofOfSignature {
                 message: ProofOfSignature {
                     name: String::from("Proof-of-Signature"),
                     signer: signer_arr,
-                    agreement_cid: String::from("ProofOfAuthority proof cid                    "),
-                    app: String::from("daosign"),
+                    authority_cid: String::from("ProofOfAuthority proof cid                    "),
                     timestamp: timestamp_arr,
                     metadata: String::from("proof metadata"),
                 },
@@ -706,12 +694,8 @@ pub mod daosign_app {
                     .get(proof_cid.clone())
                     .unwrap()
                     .message
-                    .agreement_cid,
+                    .authority_cid,
                 String::from("ProofOfAuthority proof cid                    ")
-            );
-            assert_eq!(
-                instance.posis.get(proof_cid.clone()).unwrap().message.app,
-                String::from("daosign")
             );
             assert_eq!(
                 instance
@@ -746,7 +730,7 @@ pub mod daosign_app {
             let mut instance = DAOsignApp::new(EIP712Domain {
                 name: "daosign".into(),
                 version: "0.1.0".into(),
-                chain_id: [0; 32],
+                chain_id: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
                 verifying_contract: [0; 32].into(),
             });
 
@@ -761,21 +745,20 @@ pub mod daosign_app {
             // Test
             //
 
-            let timestamp: u64 = 1702609773;
+            let timestamp: u64 = 1709210692;
             let timestamp_bytes = timestamp.to_be_bytes();
             let mut timestamp_arr: [u8; 32] = [0; 32];
             timestamp_arr[24..].copy_from_slice(&timestamp_bytes);
 
-            let signature = <[u8; 65]>::from_hex("4f43008200f6dea8f74ec205d874593885872158406c2ef0f71dbe2459ba9118667d10451069d5015fc005c88b2337240c8f02edf904e08b4abf723dc20998a91b").unwrap();
+            let signature = <[u8; 65]>::from_hex("2d646235f801715f3ce282977894b5191329471ee2f30e828e851e026e41d9744ef897d5fe6d2dbaf77c9abc24641c72f26a138fd091d65048c8e0e8e9c6ae1f1c").unwrap();
             let proof_cid = String::from("ProofOfAgreement proof cid                    ");
 
             let data = SignedProofOfAgreement {
                 message: ProofOfAgreement {
-                    agreement_cid: String::from("ProofOfAuthority proof cid                    "),
+                    authority_cid: String::from("ProofOfAuthority proof cid                    "),
                     signature_cids: Vec::from([String::from(
                         "ProofOfSignature proof cid                    ",
                     )]),
-                    app: String::from("daosign"),
                     timestamp: timestamp_arr,
                     metadata: String::from("proof metadata"),
                 },
@@ -799,7 +782,7 @@ pub mod daosign_app {
                     .get(proof_cid.clone())
                     .unwrap()
                     .message
-                    .agreement_cid,
+                    .authority_cid,
                 String::from("ProofOfAuthority proof cid                    ")
             );
             assert_eq!(
@@ -820,10 +803,6 @@ pub mod daosign_app {
                     .message
                     .signature_cids[0],
                 String::from("ProofOfSignature proof cid                    ")
-            );
-            assert_eq!(
-                instance.poags.get(proof_cid.clone()).unwrap().message.app,
-                String::from("daosign")
             );
             assert_eq!(
                 instance
@@ -859,14 +838,14 @@ pub mod daosign_app {
             let mut instance = DAOsignApp::new(EIP712Domain {
                 name: "daosign".into(),
                 version: "0.1.0".into(),
-                chain_id: [0; 32],
+                chain_id: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
                 verifying_contract: [0; 32].into(),
             });
 
             //
             // Pre-test. Store Proof-of-Authority
             //
-            let timestamp: u64 = 1702609459;
+            let timestamp: u64 = 1709210692;
             let timestamp_bytes = timestamp.to_be_bytes();
             let mut timestamp_arr: [u8; 32] = [0; 32];
             timestamp_arr[24..].copy_from_slice(&timestamp_bytes);
@@ -875,7 +854,7 @@ pub mod daosign_app {
             let mut from_arr: [u8; 32] = [0; 32];
             from_arr[12..].copy_from_slice(&from);
 
-            let signature = <[u8; 65]>::from_hex("130561fa55cda78e5a9ac0cb96e76409fa5112a39422604b043580a559a2a352641f71fe278c74192594c27d3d7c5b7f7995e63bd0ddc96124ae8532fe51d9111c").unwrap();
+            let signature = <[u8; 65]>::from_hex("717f122f3a98ddd50353a9b21705991cbbb8c29695910fae159901bd1213a22531e9f26d6e95197c4a422dd9ebe3809e7d1dc4886d96319d7fe13b4fbfaf46621b").unwrap();
             let proof_cid = String::from("ProofOfAuthority proof cid                    ");
 
             store_proof_of_authority(&mut instance);
@@ -899,7 +878,6 @@ pub mod daosign_app {
                 proof.message.signers[0].metadata,
                 String::from("some metadata")
             );
-            assert_eq!(proof.message.app, String::from("daosign"));
             assert_eq!(proof.message.timestamp, timestamp_arr);
             assert_eq!(proof.message.metadata, String::from("proof metadata"));
         }
@@ -909,14 +887,14 @@ pub mod daosign_app {
             let mut instance = DAOsignApp::new(EIP712Domain {
                 name: "daosign".into(),
                 version: "0.1.0".into(),
-                chain_id: [0; 32],
+                chain_id: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
                 verifying_contract: [0; 32].into(),
             });
 
             //
             // Pre-test. Store Proof-of-Signature
             //
-            let timestamp: u64 = 1702609048;
+            let timestamp: u64 = 1709210692;
             let timestamp_bytes = timestamp.to_be_bytes();
             let mut timestamp_arr: [u8; 32] = [0; 32];
             timestamp_arr[24..].copy_from_slice(&timestamp_bytes);
@@ -925,7 +903,7 @@ pub mod daosign_app {
             let mut signer_arr: [u8; 32] = [0; 32];
             signer_arr[12..].copy_from_slice(&signer);
 
-            let signature = <[u8; 65]>::from_hex("3873d49c83039d1624ec52ee6f6edbe0d31105a7aebcd1304e8326adc0807c3e692efc2b302370dbc0c7ea44904130e3468ff34ff1eaf65613ad8ba6db9405e31c").unwrap();
+            let signature = <[u8; 65]>::from_hex("574d3351d0c842fc1a75c1f682467439b42e77886baef427d10a7ce22e4d5f7e182a828b4cc35cc75429d0439bb3773814da162c6dfa2bfcd1451b74e8b7ba6b1b").unwrap();
             let proof_cid = String::from("ProofOfSignature proof cid                    ");
 
             store_proof_of_authority(&mut instance);
@@ -942,10 +920,9 @@ pub mod daosign_app {
             assert_eq!(proof.message.name, String::from("Proof-of-Signature"));
             assert_eq!(proof.message.signer, signer_arr);
             assert_eq!(
-                proof.message.agreement_cid,
+                proof.message.authority_cid,
                 String::from("ProofOfAuthority proof cid                    ")
             );
-            assert_eq!(proof.message.app, String::from("daosign"));
             assert_eq!(proof.message.timestamp, timestamp_arr);
             assert_eq!(proof.message.metadata, String::from("proof metadata"));
         }
@@ -955,7 +932,7 @@ pub mod daosign_app {
             let mut instance = DAOsignApp::new(EIP712Domain {
                 name: "daosign".into(),
                 version: "0.1.0".into(),
-                chain_id: [0; 32],
+                chain_id: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
                 verifying_contract: [0; 32].into(),
             });
 
@@ -974,12 +951,12 @@ pub mod daosign_app {
             //
             // Get Proof-of-Agreement
             //
-            let timestamp: u64 = 1702609773;
+            let timestamp: u64 = 1709210692;
             let timestamp_bytes = timestamp.to_be_bytes();
             let mut timestamp_arr: [u8; 32] = [0; 32];
             timestamp_arr[24..].copy_from_slice(&timestamp_bytes);
 
-            let signature = <[u8; 65]>::from_hex("4f43008200f6dea8f74ec205d874593885872158406c2ef0f71dbe2459ba9118667d10451069d5015fc005c88b2337240c8f02edf904e08b4abf723dc20998a91b").unwrap();
+            let signature = <[u8; 65]>::from_hex("2d646235f801715f3ce282977894b5191329471ee2f30e828e851e026e41d9744ef897d5fe6d2dbaf77c9abc24641c72f26a138fd091d65048c8e0e8e9c6ae1f1c").unwrap();
             let proof_cid = String::from("ProofOfAgreement proof cid                    ");
 
             let proof = instance.get_proof_of_agreement(proof_cid.clone());
@@ -988,7 +965,7 @@ pub mod daosign_app {
             assert_eq!(proof.proof_cid, proof_cid.clone());
 
             assert_eq!(
-                proof.message.agreement_cid,
+                proof.message.authority_cid,
                 String::from("ProofOfAuthority proof cid                    ")
             );
             assert_eq!(proof.message.signature_cids.len(), 1);
@@ -996,7 +973,6 @@ pub mod daosign_app {
                 proof.message.signature_cids[0],
                 String::from("ProofOfSignature proof cid                    ")
             );
-            assert_eq!(proof.message.app, String::from("daosign"));
             assert_eq!(proof.message.timestamp, timestamp_arr);
             assert_eq!(proof.message.metadata, String::from("proof metadata"));
         }
