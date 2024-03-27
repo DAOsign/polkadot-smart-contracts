@@ -1,30 +1,27 @@
 [package]
 name = "daosign_app"
-version = "1.0.0"
-authors = ["Misha Kushka, CIDT <https://consideritdone.tech>"]
+version = "0.1.0"
+authors = ["[your_name] <[your_email]>"]
 edition = "2021"
 
 [dependencies]
-ink = { version = "4.3.0", default-features = false }
-scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
-scale-info = { version = "2.6", default-features = false, features = ["derive"], optional = true }
-
-daosign_eip712 = { path = "../daosign_eip712", version = "1.0.0", default-features = false, features = ["ink-as-dependency"] }
+ink = { workspace = true }
+daosign_eip712 = { path = "../daosign_eip712" }
+daosign_proof_of_agreement = { path = "../daosign_proof_of_agreement" }
+daosign_proof_of_authority = { path = "../daosign_proof_of_authority" }
+daosign_proof_of_signature = { path = "../daosign_proof_of_signature" }
 
 [dev-dependencies]
-hex = { version = "0.4", default-features = false }
+ink_e2e = { workspace = true }
+hex = { workspace = true }
 
 [lib]
-name = "daosign_app"
-path = "src/lib.rs"
+path = "lib.rs"
 
 [features]
 default = ["std"]
 std = [
     "ink/std",
-    "scale/std",
-    "scale-info/std",
-    "daosign_eip712/std",
-
 ]
 ink-as-dependency = []
+e2e-tests = []
