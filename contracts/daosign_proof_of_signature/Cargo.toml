@@ -1,11 +1,12 @@
 [package]
-name = "daosign_eip712"
+name = "daosign_proof_of_signature"
 version = "0.1.0"
 authors = ["[your_name] <[your_email]>"]
 edition = "2021"
 
 [dependencies]
 ink = { workspace = true }
+daosign_eip712 = { path = "../daosign_eip712" }
 
 [dev-dependencies]
 ink_e2e = { workspace = true }
