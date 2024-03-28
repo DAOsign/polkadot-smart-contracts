@@ -79,66 +79,79 @@ DAOsign features three ways of ensuring contract quality:
 - Manual review of the code
 
 ### Unit Tests
-Our unit tests are located within each of the contract's own files.
 
-These unit tests cover every single Ink! function inside every contract to ensure contracts code quality.
-
-You can test each smart contract from its directory by running `cargo test` command.
-
-The full step-by-step guide to run unit tests is as follows:
-
-1. In the root directory of the project, open a Terminal and run `cd contracts/<daosign_app|daosign_eip712>` to go to the subdirectory of the contract you want to run tests for.
-2. Once in directory, run `cargo test` to run unit tests for this contract or `cargo test -- --nocapture` to both run the unit tests and see `debug_println!` output (used for development purposes).
-
-Note: to run unit tests for `daosign_eip712`, one has to comment out the following `derive` in the `contracts/daosign_eip712/lib.rs` file:
+Just run `cargo test -- --nocapture`. The expected output of the unit tests is the following:
 ```
-#[ink(storage)]
-// #[derive(Debug)]
-pub struct DAOsignEIP712 {
-```
-
-The expected output of the unit tests is the following:
-
-#### DAOsign App
-```
-    Finished test [unoptimized + debuginfo] target(s) in 0.11s
-     Running unittests src/lib.rs (/Users/mkushka/Documents/Work/CIDT/projects/daosign/polkadot-smart-contracts/target/debug/deps/daosign_app-ac3157320f39121e)
+    Finished test [unoptimized + debuginfo] target(s) in 0.87s
+     Running unittests lib.rs (target/debug/deps/daosign_app-d66c2e079c5069ad)
 
 running 6 tests
-test daosign_app::tests::test_get_proof_of_authority ... ok
 test daosign_app::tests::test_store_proof_of_authority ... ok
+test daosign_app::tests::test_get_proof_of_authority ... ok
 test daosign_app::tests::test_get_proof_of_signature ... ok
-test daosign_app::tests::test_store_proof_of_signature ... ok
 test daosign_app::tests::test_get_proof_of_agreement ... ok
 test daosign_app::tests::test_store_proof_of_agreement ... ok
+test daosign_app::tests::test_store_proof_of_signature ... ok
 
-test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests lib.rs (target/debug/deps/daosign_eip712-8b08a0cfd791f20b)
+
+running 2 tests
+test tests::check_typehash ... ok
+test tests::check_hash ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests lib.rs (target/debug/deps/daosign_proof_of_agreement-94aff76738264764)
+
+running 2 tests
+test tests::check_typehash ... ok
+test tests::check_type ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests lib.rs (target/debug/deps/daosign_proof_of_authority-264ee8b6c691eb49)
+
+running 2 tests
+test tests::check_typehash ... ok
+test tests::check_type ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests lib.rs (target/debug/deps/daosign_proof_of_signature-468640f7ba2fcfa8)
+
+running 2 tests
+test tests::check_typehash ... ok
+test tests::check_type ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
    Doc-tests daosign_app
 
 running 0 tests
 
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-```
-
-#### DAOsign EIP712
-```
-    Finished test [unoptimized + debuginfo] target(s) in 0.05s
-     Running unittests src/lib.rs (/Users/mkushka/Documents/Work/CIDT/projects/daosign/polkadot-smart-contracts/target/debug/deps/daosign_eip712-a4f3a41616886efa)
-
-running 8 tests
-test daosign_eip712::tests::hash_proof_of_signature ... ok
-test daosign_eip712::tests::constructor ... ok
-test daosign_eip712::tests::hash_proof_of_authority ... ok
-test daosign_eip712::tests::hash_proof_of_agreement ... ok
-test daosign_eip712::tests::recover_proof_of_signature ... ok
-test daosign_eip712::tests::recover_proof_of_agreement ... ok
-test daosign_eip712::tests::recover_proof_of_authority ... ok
-test daosign_eip712::tests::recover ... ok
-
-test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
    Doc-tests daosign_eip712
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests daosign_proof_of_agreement
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests daosign_proof_of_authority
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests daosign_proof_of_signature
 
 running 0 tests
 
