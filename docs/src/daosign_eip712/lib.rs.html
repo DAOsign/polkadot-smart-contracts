@@ -1202,12 +1202,6 @@
 <a href="#1202" id="1202">1202</a>
 <a href="#1203" id="1203">1203</a>
 <a href="#1204" id="1204">1204</a>
-<a href="#1205" id="1205">1205</a>
-<a href="#1206" id="1206">1206</a>
-<a href="#1207" id="1207">1207</a>
-<a href="#1208" id="1208">1208</a>
-<a href="#1209" id="1209">1209</a>
-<a href="#1210" id="1210">1210</a>
 </pre><pre class="rust"><code><span class="attr">#![cfg_attr(not(feature = <span class="string">&quot;std&quot;</span>), no_std, no_main)]
 
 </span><span class="doccomment">//! # DAOsign EIP-712 Contract
@@ -1266,7 +1260,6 @@
         <span class="kw">pub </span>from: [u8; <span class="number">32</span>],
         <span class="kw">pub </span>agreement_cid: String,
         <span class="kw">pub </span>signers: Vec&lt;Signer&gt;,
-        <span class="kw">pub </span>app: String,
         <span class="comment">// As Rust doesn&#39;t have u256 type as in Solidity, we&#39;re using [u8; 32] here
         </span><span class="kw">pub </span>timestamp: [u8; <span class="number">32</span>],
         <span class="kw">pub </span>metadata: String,
@@ -1282,7 +1275,6 @@
         <span class="kw">pub </span>name: String,
         <span class="kw">pub </span>signer: [u8; <span class="number">32</span>],
         <span class="kw">pub </span>agreement_cid: String,
-        <span class="kw">pub </span>app: String,
         <span class="comment">// As Rust doesn&#39;t have u256 type as in Solidity, we&#39;re using [u8; 32] here
         </span><span class="kw">pub </span>timestamp: [u8; <span class="number">32</span>],
         <span class="kw">pub </span>metadata: String,
@@ -1297,7 +1289,6 @@
     </span><span class="kw">pub struct </span>ProofOfAgreement {
         <span class="kw">pub </span>agreement_cid: String,
         <span class="kw">pub </span>signature_cids: Vec&lt;String&gt;,
-        <span class="kw">pub </span>app: String,
         <span class="comment">// As Rust doesn&#39;t have u256 type as in Solidity, we&#39;re using [u8; 32] here
         </span><span class="kw">pub </span>timestamp: [u8; <span class="number">32</span>],
         <span class="kw">pub </span>metadata: String,
@@ -1547,7 +1538,6 @@
             encoded_data.extend_from_slice(data.from.encode().as_slice());
             encoded_data.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">Self</span>::keccak_hash(<span class="kw-2">&amp;</span>data.agreement_cid));
             encoded_data.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.hash_signers(data.signers));
-            encoded_data.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">Self</span>::keccak_hash(<span class="kw-2">&amp;</span>data.app));
             encoded_data.extend_from_slice(data.timestamp.as_slice());
             encoded_data.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">Self</span>::keccak_hash(<span class="kw-2">&amp;</span>data.metadata));
 
@@ -1573,7 +1563,6 @@
             encoded_data.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">Self</span>::keccak_hash(<span class="kw-2">&amp;</span>data.name));
             encoded_data.extend_from_slice(data.signer.encode().as_slice());
             encoded_data.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">Self</span>::keccak_hash(<span class="kw-2">&amp;</span>data.agreement_cid));
-            encoded_data.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">Self</span>::keccak_hash(<span class="kw-2">&amp;</span>data.app));
             encoded_data.extend_from_slice(data.timestamp.as_slice());
             encoded_data.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">Self</span>::keccak_hash(<span class="kw-2">&amp;</span>data.metadata));
 
@@ -1598,7 +1587,6 @@
             encoded_data.extend_from_slice(<span class="self">self</span>.proof_of_agreement_typehash.as_slice());
             encoded_data.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">Self</span>::keccak_hash(<span class="kw-2">&amp;</span>data.agreement_cid));
             encoded_data.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.hash_strings(data.signature_cids));
-            encoded_data.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">Self</span>::keccak_hash(<span class="kw-2">&amp;</span>data.app));
             encoded_data.extend_from_slice(data.timestamp.as_slice());
             encoded_data.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">Self</span>::keccak_hash(<span class="kw-2">&amp;</span>data.metadata));
 
@@ -1824,9 +1812,9 @@
         </span><span class="kw">fn </span>init_typehashes(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; () {
             <span class="self">self</span>.eip712domain_typehash = <span class="self">Self</span>::keccak_hash(<span class="string">&quot;EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)&quot;</span>);
             <span class="self">self</span>.signer_typehash = <span class="self">Self</span>::keccak_hash(<span class="string">&quot;Signer(address addr,string metadata)&quot;</span>);
-            <span class="self">self</span>.proof_of_authority_typehash = <span class="self">Self</span>::keccak_hash(<span class="string">&quot;ProofOfAuthority(string name,address from,string agreementCID,Signer[] signers,string app,uint256 timestamp,string metadata)Signer(address addr,string metadata)&quot;</span>);
-            <span class="self">self</span>.proof_of_signature_typehash = <span class="self">Self</span>::keccak_hash(<span class="string">&quot;ProofOfSignature(string name,address signer,string agreementCID,string app,uint256 timestamp,string metadata)&quot;</span>);
-            <span class="self">self</span>.proof_of_agreement_typehash = <span class="self">Self</span>::keccak_hash(<span class="string">&quot;ProofOfAgreement(string agreementCID,string[] signatureCIDs,string app,uint256 timestamp,string metadata)&quot;</span>);
+            <span class="self">self</span>.proof_of_authority_typehash = <span class="self">Self</span>::keccak_hash(<span class="string">&quot;ProofOfAuthority(string name,address from,string agreementCID,Signer[] signers,uint256 timestamp,string metadata)Signer(address addr,string metadata)&quot;</span>);
+            <span class="self">self</span>.proof_of_signature_typehash = <span class="self">Self</span>::keccak_hash(<span class="string">&quot;ProofOfSignature(string name,address signer,string authorityCID,uint256 timestamp,string metadata)&quot;</span>);
+            <span class="self">self</span>.proof_of_agreement_typehash = <span class="self">Self</span>::keccak_hash(<span class="string">&quot;ProofOfAgreement(string authorityCID,string[] signatureCIDs,uint256 timestamp,string metadata)&quot;</span>);
         }
 
         <span class="doccomment">/// # Helper function to initialize EIP-712, Signer, Proof-of-Authority, Proof-of-Signature, and

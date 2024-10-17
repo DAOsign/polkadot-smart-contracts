@@ -978,30 +978,6 @@
 <a href="#978" id="978">978</a>
 <a href="#979" id="979">979</a>
 <a href="#980" id="980">980</a>
-<a href="#981" id="981">981</a>
-<a href="#982" id="982">982</a>
-<a href="#983" id="983">983</a>
-<a href="#984" id="984">984</a>
-<a href="#985" id="985">985</a>
-<a href="#986" id="986">986</a>
-<a href="#987" id="987">987</a>
-<a href="#988" id="988">988</a>
-<a href="#989" id="989">989</a>
-<a href="#990" id="990">990</a>
-<a href="#991" id="991">991</a>
-<a href="#992" id="992">992</a>
-<a href="#993" id="993">993</a>
-<a href="#994" id="994">994</a>
-<a href="#995" id="995">995</a>
-<a href="#996" id="996">996</a>
-<a href="#997" id="997">997</a>
-<a href="#998" id="998">998</a>
-<a href="#999" id="999">999</a>
-<a href="#1000" id="1000">1000</a>
-<a href="#1001" id="1001">1001</a>
-<a href="#1002" id="1002">1002</a>
-<a href="#1003" id="1003">1003</a>
-<a href="#1004" id="1004">1004</a>
 </pre><pre class="rust"><code><span class="attr">#![cfg_attr(not(feature = <span class="string">&quot;std&quot;</span>), no_std, no_main)]
 
 </span><span class="doccomment">//! # DAOsign App Contract
@@ -1286,7 +1262,6 @@
         /// Returns `true` if the validation passes, otherwise raises assertions.
         </span><span class="kw">pub fn </span>validate_signed_proof_of_authority(<span class="kw-2">&amp;</span><span class="self">self</span>, data: SignedProofOfAuthority) -&gt; bool {
             <span class="macro">assert!</span>(data.proof_cid.len() == IPFS_CID_LENGTH, <span class="string">&quot;Invalid proof CID&quot;</span>);
-            <span class="macro">assert!</span>(data.message.app == <span class="string">&quot;daosign&quot;</span>, <span class="string">&quot;Invalid app name&quot;</span>);
             <span class="macro">assert!</span>(
                 data.message.name == <span class="string">&quot;Proof-of-Authority&quot;</span>,
                 <span class="string">&quot;Invalid proof name&quot;
@@ -1314,7 +1289,6 @@
         /// Returns `true` if the validation passes, otherwise raises assertions.
         </span><span class="kw">pub fn </span>validate_signed_proof_of_signature(<span class="kw-2">&amp;</span><span class="self">self</span>, data: SignedProofOfSignature) -&gt; bool {
             <span class="macro">assert!</span>(data.proof_cid.len() == IPFS_CID_LENGTH, <span class="string">&quot;Invalid proof CID&quot;</span>);
-            <span class="macro">assert!</span>(data.message.app == <span class="string">&quot;daosign&quot;</span>, <span class="string">&quot;Invalid app name&quot;</span>);
             <span class="macro">assert!</span>(
                 data.message.name == <span class="string">&quot;Proof-of-Signature&quot;</span>,
                 <span class="string">&quot;Invalid proof name&quot;
@@ -1353,7 +1327,6 @@
         /// Returns `true` if the validation passes, otherwise raises assertions.
         </span><span class="kw">pub fn </span>validate_signed_proof_of_agreement(<span class="kw-2">&amp;</span><span class="self">self</span>, data: SignedProofOfAgreement) -&gt; bool {
             <span class="macro">assert!</span>(data.proof_cid.len() == IPFS_CID_LENGTH, <span class="string">&quot;Invalid proof CID&quot;</span>);
-            <span class="macro">assert!</span>(data.message.app == <span class="string">&quot;daosign&quot;</span>, <span class="string">&quot;Invalid app name&quot;</span>);
             <span class="macro">assert!</span>(
                 <span class="self">self</span>.poaus
                     .get(<span class="kw-2">&amp;</span>data.message.agreement_cid)
@@ -1428,7 +1401,7 @@
         <span class="kw">use </span>ink::env::debug_println;
 
         <span class="kw">fn </span>store_proof_of_authority(instance: <span class="kw-2">&amp;mut </span>DAOsignApp) {
-            <span class="kw">let </span>timestamp: u64 = <span class="number">1702609459</span>;
+            <span class="kw">let </span>timestamp: u64 = <span class="number">1729168108</span>;
             <span class="kw">let </span>timestamp_bytes = timestamp.to_be_bytes();
             <span class="kw">let </span><span class="kw-2">mut </span>timestamp_arr: [u8; <span class="number">32</span>] = [<span class="number">0</span>; <span class="number">32</span>];
             timestamp_arr[<span class="number">24</span>..].copy_from_slice(<span class="kw-2">&amp;</span>timestamp_bytes);
@@ -1437,7 +1410,7 @@
             <span class="kw">let </span><span class="kw-2">mut </span>from_arr: [u8; <span class="number">32</span>] = [<span class="number">0</span>; <span class="number">32</span>];
             from_arr[<span class="number">12</span>..].copy_from_slice(<span class="kw-2">&amp;</span>from);
 
-            <span class="kw">let </span>signature = &lt;[u8; <span class="number">65</span>]&gt;::from_hex(<span class="string">&quot;130561fa55cda78e5a9ac0cb96e76409fa5112a39422604b043580a559a2a352641f71fe278c74192594c27d3d7c5b7f7995e63bd0ddc96124ae8532fe51d9111c&quot;</span>).unwrap();
+            <span class="kw">let </span>signature = &lt;[u8; <span class="number">65</span>]&gt;::from_hex(<span class="string">&quot;663f98126ab75f5bf2b75cae082e9cd84e13ea624d58b4e1a4dbe645bfb34a6420234a50c7b17f9590c9c19f19c025c91d79dd7b6d104b40d8542613c8cb722e1b&quot;</span>).unwrap();
             <span class="kw">let </span>proof_cid = String::from(<span class="string">&quot;ProofOfAuthority proof cid                    &quot;</span>);
 
             instance.store_proof_of_authority(SignedProofOfAuthority {
@@ -1449,7 +1422,6 @@
                         addr: from_arr,
                         metadata: String::from(<span class="string">&quot;some metadata&quot;</span>),
                     }]),
-                    app: String::from(<span class="string">&quot;daosign&quot;</span>),
                     timestamp: timestamp_arr,
                     metadata: String::from(<span class="string">&quot;proof metadata&quot;</span>),
                 },
@@ -1459,7 +1431,7 @@
         }
 
         <span class="kw">fn </span>store_proof_of_signature(instance: <span class="kw-2">&amp;mut </span>DAOsignApp) {
-            <span class="kw">let </span>timestamp: u64 = <span class="number">1702609048</span>;
+            <span class="kw">let </span>timestamp: u64 = <span class="number">1729168108</span>;
             <span class="kw">let </span>timestamp_bytes = timestamp.to_be_bytes();
             <span class="kw">let </span><span class="kw-2">mut </span>timestamp_arr: [u8; <span class="number">32</span>] = [<span class="number">0</span>; <span class="number">32</span>];
             timestamp_arr[<span class="number">24</span>..].copy_from_slice(<span class="kw-2">&amp;</span>timestamp_bytes);
@@ -1468,7 +1440,7 @@
             <span class="kw">let </span><span class="kw-2">mut </span>signer_arr: [u8; <span class="number">32</span>] = [<span class="number">0</span>; <span class="number">32</span>];
             signer_arr[<span class="number">12</span>..].copy_from_slice(<span class="kw-2">&amp;</span>signer);
 
-            <span class="kw">let </span>signature = &lt;[u8; <span class="number">65</span>]&gt;::from_hex(<span class="string">&quot;3873d49c83039d1624ec52ee6f6edbe0d31105a7aebcd1304e8326adc0807c3e692efc2b302370dbc0c7ea44904130e3468ff34ff1eaf65613ad8ba6db9405e31c&quot;</span>).unwrap();
+            <span class="kw">let </span>signature = &lt;[u8; <span class="number">65</span>]&gt;::from_hex(<span class="string">&quot;881d569bc81555e58a5f7b96feb3782fccf181b6d52b697d29e82facb5bdad5c538e793f0b1132cc6b4c34480aedaecdb06e6ad92a6fbfcfeb95792ab0aa5c0a1c&quot;</span>).unwrap();
             <span class="kw">let </span>proof_cid = String::from(<span class="string">&quot;ProofOfSignature proof cid                    &quot;</span>);
 
             instance.store_proof_of_signature(SignedProofOfSignature {
@@ -1476,7 +1448,6 @@
                     name: String::from(<span class="string">&quot;Proof-of-Signature&quot;</span>),
                     signer: signer_arr,
                     agreement_cid: String::from(<span class="string">&quot;ProofOfAuthority proof cid                    &quot;</span>),
-                    app: String::from(<span class="string">&quot;daosign&quot;</span>),
                     timestamp: timestamp_arr,
                     metadata: String::from(<span class="string">&quot;proof metadata&quot;</span>),
                 },
@@ -1500,7 +1471,6 @@
                     signature_cids: Vec::from([String::from(
                         <span class="string">&quot;ProofOfSignature proof cid                    &quot;</span>,
                     )]),
-                    app: String::from(<span class="string">&quot;daosign&quot;</span>),
                     timestamp: timestamp_arr,
                     metadata: String::from(<span class="string">&quot;proof metadata&quot;</span>),
                 },
@@ -1514,11 +1484,11 @@
             <span class="kw">let </span><span class="kw-2">mut </span>instance = DAOsignApp::new(EIP712Domain {
                 name: <span class="string">&quot;daosign&quot;</span>.into(),
                 version: <span class="string">&quot;0.1.0&quot;</span>.into(),
-                chain_id: [<span class="number">0</span>; <span class="number">32</span>],
+                chain_id: [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>],
                 verifying_contract: [<span class="number">0</span>; <span class="number">32</span>].into(),
             });
 
-            <span class="kw">let </span>timestamp: u64 = <span class="number">1702609459</span>;
+            <span class="kw">let </span>timestamp: u64 = <span class="number">1729168108</span>;
             <span class="kw">let </span>timestamp_bytes = timestamp.to_be_bytes();
             <span class="kw">let </span><span class="kw-2">mut </span>timestamp_arr: [u8; <span class="number">32</span>] = [<span class="number">0</span>; <span class="number">32</span>];
             timestamp_arr[<span class="number">24</span>..].copy_from_slice(<span class="kw-2">&amp;</span>timestamp_bytes);
@@ -1529,7 +1499,7 @@
             from_arr[<span class="number">12</span>..].copy_from_slice(<span class="kw-2">&amp;</span>from);
             <span class="macro">debug_println!</span>(<span class="string">&quot;{:?}&quot;</span>, from_arr);
 
-            <span class="kw">let </span>signature = &lt;[u8; <span class="number">65</span>]&gt;::from_hex(<span class="string">&quot;130561fa55cda78e5a9ac0cb96e76409fa5112a39422604b043580a559a2a352641f71fe278c74192594c27d3d7c5b7f7995e63bd0ddc96124ae8532fe51d9111c&quot;</span>).unwrap();
+            <span class="kw">let </span>signature = &lt;[u8; <span class="number">65</span>]&gt;::from_hex(<span class="string">&quot;663f98126ab75f5bf2b75cae082e9cd84e13ea624d58b4e1a4dbe645bfb34a6420234a50c7b17f9590c9c19f19c025c91d79dd7b6d104b40d8542613c8cb722e1b&quot;</span>).unwrap();
             <span class="macro">debug_println!</span>(<span class="string">&quot;{:?}&quot;</span>, signature);
             <span class="kw">let </span>proof_cid = String::from(<span class="string">&quot;ProofOfAuthority proof cid                    &quot;</span>);
 
@@ -1542,7 +1512,6 @@
                         addr: from_arr,
                         metadata: String::from(<span class="string">&quot;some metadata&quot;</span>),
                     }]),
-                    app: String::from(<span class="string">&quot;daosign&quot;</span>),
                     timestamp: timestamp_arr,
                     metadata: String::from(<span class="string">&quot;proof metadata&quot;</span>),
                 },
@@ -1607,10 +1576,6 @@
                 String::from(<span class="string">&quot;some metadata&quot;</span>)
             );
             <span class="macro">assert_eq!</span>(
-                instance.poaus.get(proof_cid.clone()).unwrap().message.app,
-                String::from(<span class="string">&quot;daosign&quot;</span>)
-            );
-            <span class="macro">assert_eq!</span>(
                 instance
                     .poaus
                     .get(proof_cid.clone())
@@ -1642,7 +1607,7 @@
             <span class="kw">let </span><span class="kw-2">mut </span>instance = DAOsignApp::new(EIP712Domain {
                 name: <span class="string">&quot;daosign&quot;</span>.into(),
                 version: <span class="string">&quot;0.1.0&quot;</span>.into(),
-                chain_id: [<span class="number">0</span>; <span class="number">32</span>],
+                chain_id: [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>],
                 verifying_contract: [<span class="number">0</span>; <span class="number">32</span>].into(),
             });
 
@@ -1656,7 +1621,7 @@
             // Test
             //
 
-            </span><span class="kw">let </span>timestamp: u64 = <span class="number">1702609048</span>;
+            </span><span class="kw">let </span>timestamp: u64 = <span class="number">1729168108</span>;
             <span class="kw">let </span>timestamp_bytes = timestamp.to_be_bytes();
             <span class="kw">let </span><span class="kw-2">mut </span>timestamp_arr: [u8; <span class="number">32</span>] = [<span class="number">0</span>; <span class="number">32</span>];
             timestamp_arr[<span class="number">24</span>..].copy_from_slice(<span class="kw-2">&amp;</span>timestamp_bytes);
@@ -1665,7 +1630,7 @@
             <span class="kw">let </span><span class="kw-2">mut </span>signer_arr: [u8; <span class="number">32</span>] = [<span class="number">0</span>; <span class="number">32</span>];
             signer_arr[<span class="number">12</span>..].copy_from_slice(<span class="kw-2">&amp;</span>signer);
 
-            <span class="kw">let </span>signature = &lt;[u8; <span class="number">65</span>]&gt;::from_hex(<span class="string">&quot;3873d49c83039d1624ec52ee6f6edbe0d31105a7aebcd1304e8326adc0807c3e692efc2b302370dbc0c7ea44904130e3468ff34ff1eaf65613ad8ba6db9405e31c&quot;</span>).unwrap();
+            <span class="kw">let </span>signature = &lt;[u8; <span class="number">65</span>]&gt;::from_hex(<span class="string">&quot;881d569bc81555e58a5f7b96feb3782fccf181b6d52b697d29e82facb5bdad5c538e793f0b1132cc6b4c34480aedaecdb06e6ad92a6fbfcfeb95792ab0aa5c0a1c&quot;</span>).unwrap();
             <span class="kw">let </span>proof_cid = String::from(<span class="string">&quot;ProofOfSignature proof cid                    &quot;</span>);
 
             <span class="kw">let </span>data = SignedProofOfSignature {
@@ -1673,7 +1638,6 @@
                     name: String::from(<span class="string">&quot;Proof-of-Signature&quot;</span>),
                     signer: signer_arr,
                     agreement_cid: String::from(<span class="string">&quot;ProofOfAuthority proof cid                    &quot;</span>),
-                    app: String::from(<span class="string">&quot;daosign&quot;</span>),
                     timestamp: timestamp_arr,
                     metadata: String::from(<span class="string">&quot;proof metadata&quot;</span>),
                 },
@@ -1714,10 +1678,6 @@
                 String::from(<span class="string">&quot;ProofOfAuthority proof cid                    &quot;</span>)
             );
             <span class="macro">assert_eq!</span>(
-                instance.posis.get(proof_cid.clone()).unwrap().message.app,
-                String::from(<span class="string">&quot;daosign&quot;</span>)
-            );
-            <span class="macro">assert_eq!</span>(
                 instance
                     .posis
                     .get(proof_cid.clone())
@@ -1750,7 +1710,7 @@
             <span class="kw">let </span><span class="kw-2">mut </span>instance = DAOsignApp::new(EIP712Domain {
                 name: <span class="string">&quot;daosign&quot;</span>.into(),
                 version: <span class="string">&quot;0.1.0&quot;</span>.into(),
-                chain_id: [<span class="number">0</span>; <span class="number">32</span>],
+                chain_id: [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>],
                 verifying_contract: [<span class="number">0</span>; <span class="number">32</span>].into(),
             });
 
@@ -1779,7 +1739,6 @@
                     signature_cids: Vec::from([String::from(
                         <span class="string">&quot;ProofOfSignature proof cid                    &quot;</span>,
                     )]),
-                    app: String::from(<span class="string">&quot;daosign&quot;</span>),
                     timestamp: timestamp_arr,
                     metadata: String::from(<span class="string">&quot;proof metadata&quot;</span>),
                 },
@@ -1826,10 +1785,6 @@
                 String::from(<span class="string">&quot;ProofOfSignature proof cid                    &quot;</span>)
             );
             <span class="macro">assert_eq!</span>(
-                instance.poags.get(proof_cid.clone()).unwrap().message.app,
-                String::from(<span class="string">&quot;daosign&quot;</span>)
-            );
-            <span class="macro">assert_eq!</span>(
                 instance
                     .poags
                     .get(proof_cid.clone())
@@ -1863,14 +1818,14 @@
             <span class="kw">let </span><span class="kw-2">mut </span>instance = DAOsignApp::new(EIP712Domain {
                 name: <span class="string">&quot;daosign&quot;</span>.into(),
                 version: <span class="string">&quot;0.1.0&quot;</span>.into(),
-                chain_id: [<span class="number">0</span>; <span class="number">32</span>],
+                chain_id: [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>],
                 verifying_contract: [<span class="number">0</span>; <span class="number">32</span>].into(),
             });
 
             <span class="comment">//
             // Pre-test. Store Proof-of-Authority
             //
-            </span><span class="kw">let </span>timestamp: u64 = <span class="number">1702609459</span>;
+            </span><span class="kw">let </span>timestamp: u64 = <span class="number">1729168108</span>;
             <span class="kw">let </span>timestamp_bytes = timestamp.to_be_bytes();
             <span class="kw">let </span><span class="kw-2">mut </span>timestamp_arr: [u8; <span class="number">32</span>] = [<span class="number">0</span>; <span class="number">32</span>];
             timestamp_arr[<span class="number">24</span>..].copy_from_slice(<span class="kw-2">&amp;</span>timestamp_bytes);
@@ -1879,7 +1834,7 @@
             <span class="kw">let </span><span class="kw-2">mut </span>from_arr: [u8; <span class="number">32</span>] = [<span class="number">0</span>; <span class="number">32</span>];
             from_arr[<span class="number">12</span>..].copy_from_slice(<span class="kw-2">&amp;</span>from);
 
-            <span class="kw">let </span>signature = &lt;[u8; <span class="number">65</span>]&gt;::from_hex(<span class="string">&quot;130561fa55cda78e5a9ac0cb96e76409fa5112a39422604b043580a559a2a352641f71fe278c74192594c27d3d7c5b7f7995e63bd0ddc96124ae8532fe51d9111c&quot;</span>).unwrap();
+            <span class="kw">let </span>signature = &lt;[u8; <span class="number">65</span>]&gt;::from_hex(<span class="string">&quot;663f98126ab75f5bf2b75cae082e9cd84e13ea624d58b4e1a4dbe645bfb34a6420234a50c7b17f9590c9c19f19c025c91d79dd7b6d104b40d8542613c8cb722e1b&quot;</span>).unwrap();
             <span class="kw">let </span>proof_cid = String::from(<span class="string">&quot;ProofOfAuthority proof cid                    &quot;</span>);
 
             store_proof_of_authority(<span class="kw-2">&amp;mut </span>instance);
@@ -1903,7 +1858,6 @@
                 proof.message.signers[<span class="number">0</span>].metadata,
                 String::from(<span class="string">&quot;some metadata&quot;</span>)
             );
-            <span class="macro">assert_eq!</span>(proof.message.app, String::from(<span class="string">&quot;daosign&quot;</span>));
             <span class="macro">assert_eq!</span>(proof.message.timestamp, timestamp_arr);
             <span class="macro">assert_eq!</span>(proof.message.metadata, String::from(<span class="string">&quot;proof metadata&quot;</span>));
         }
@@ -1913,14 +1867,14 @@
             <span class="kw">let </span><span class="kw-2">mut </span>instance = DAOsignApp::new(EIP712Domain {
                 name: <span class="string">&quot;daosign&quot;</span>.into(),
                 version: <span class="string">&quot;0.1.0&quot;</span>.into(),
-                chain_id: [<span class="number">0</span>; <span class="number">32</span>],
+                chain_id: [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>],
                 verifying_contract: [<span class="number">0</span>; <span class="number">32</span>].into(),
             });
 
             <span class="comment">//
             // Pre-test. Store Proof-of-Signature
             //
-            </span><span class="kw">let </span>timestamp: u64 = <span class="number">1702609048</span>;
+            </span><span class="kw">let </span>timestamp: u64 = <span class="number">1729168108</span>;
             <span class="kw">let </span>timestamp_bytes = timestamp.to_be_bytes();
             <span class="kw">let </span><span class="kw-2">mut </span>timestamp_arr: [u8; <span class="number">32</span>] = [<span class="number">0</span>; <span class="number">32</span>];
             timestamp_arr[<span class="number">24</span>..].copy_from_slice(<span class="kw-2">&amp;</span>timestamp_bytes);
@@ -1929,7 +1883,7 @@
             <span class="kw">let </span><span class="kw-2">mut </span>signer_arr: [u8; <span class="number">32</span>] = [<span class="number">0</span>; <span class="number">32</span>];
             signer_arr[<span class="number">12</span>..].copy_from_slice(<span class="kw-2">&amp;</span>signer);
 
-            <span class="kw">let </span>signature = &lt;[u8; <span class="number">65</span>]&gt;::from_hex(<span class="string">&quot;3873d49c83039d1624ec52ee6f6edbe0d31105a7aebcd1304e8326adc0807c3e692efc2b302370dbc0c7ea44904130e3468ff34ff1eaf65613ad8ba6db9405e31c&quot;</span>).unwrap();
+            <span class="kw">let </span>signature = &lt;[u8; <span class="number">65</span>]&gt;::from_hex(<span class="string">&quot;881d569bc81555e58a5f7b96feb3782fccf181b6d52b697d29e82facb5bdad5c538e793f0b1132cc6b4c34480aedaecdb06e6ad92a6fbfcfeb95792ab0aa5c0a1c&quot;</span>).unwrap();
             <span class="kw">let </span>proof_cid = String::from(<span class="string">&quot;ProofOfSignature proof cid                    &quot;</span>);
 
             store_proof_of_authority(<span class="kw-2">&amp;mut </span>instance);
@@ -1949,7 +1903,6 @@
                 proof.message.agreement_cid,
                 String::from(<span class="string">&quot;ProofOfAuthority proof cid                    &quot;</span>)
             );
-            <span class="macro">assert_eq!</span>(proof.message.app, String::from(<span class="string">&quot;daosign&quot;</span>));
             <span class="macro">assert_eq!</span>(proof.message.timestamp, timestamp_arr);
             <span class="macro">assert_eq!</span>(proof.message.metadata, String::from(<span class="string">&quot;proof metadata&quot;</span>));
         }
@@ -1959,7 +1912,7 @@
             <span class="kw">let </span><span class="kw-2">mut </span>instance = DAOsignApp::new(EIP712Domain {
                 name: <span class="string">&quot;daosign&quot;</span>.into(),
                 version: <span class="string">&quot;0.1.0&quot;</span>.into(),
-                chain_id: [<span class="number">0</span>; <span class="number">32</span>],
+                chain_id: [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>],
                 verifying_contract: [<span class="number">0</span>; <span class="number">32</span>].into(),
             });
 
@@ -2000,7 +1953,6 @@
                 proof.message.signature_cids[<span class="number">0</span>],
                 String::from(<span class="string">&quot;ProofOfSignature proof cid                    &quot;</span>)
             );
-            <span class="macro">assert_eq!</span>(proof.message.app, String::from(<span class="string">&quot;daosign&quot;</span>));
             <span class="macro">assert_eq!</span>(proof.message.timestamp, timestamp_arr);
             <span class="macro">assert_eq!</span>(proof.message.metadata, String::from(<span class="string">&quot;proof metadata&quot;</span>));
         }

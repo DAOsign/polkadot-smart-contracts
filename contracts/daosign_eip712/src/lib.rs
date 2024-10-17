@@ -56,7 +56,6 @@ pub mod daosign_eip712 {
         pub from: [u8; 32],
         pub agreement_cid: String,
         pub signers: Vec<Signer>,
-        pub app: String,
         // As Rust doesn't have u256 type as in Solidity, we're using [u8; 32] here
         pub timestamp: [u8; 32],
         pub metadata: String,
@@ -72,7 +71,6 @@ pub mod daosign_eip712 {
         pub name: String,
         pub signer: [u8; 32],
         pub agreement_cid: String,
-        pub app: String,
         // As Rust doesn't have u256 type as in Solidity, we're using [u8; 32] here
         pub timestamp: [u8; 32],
         pub metadata: String,
@@ -87,7 +85,6 @@ pub mod daosign_eip712 {
     pub struct ProofOfAgreement {
         pub agreement_cid: String,
         pub signature_cids: Vec<String>,
-        pub app: String,
         // As Rust doesn't have u256 type as in Solidity, we're using [u8; 32] here
         pub timestamp: [u8; 32],
         pub metadata: String,
@@ -337,7 +334,6 @@ pub mod daosign_eip712 {
             encoded_data.extend_from_slice(data.from.encode().as_slice());
             encoded_data.extend_from_slice(&Self::keccak_hash(&data.agreement_cid));
             encoded_data.extend_from_slice(&self.hash_signers(data.signers));
-            encoded_data.extend_from_slice(&Self::keccak_hash(&data.app));
             encoded_data.extend_from_slice(data.timestamp.as_slice());
             encoded_data.extend_from_slice(&Self::keccak_hash(&data.metadata));
 
@@ -363,7 +359,6 @@ pub mod daosign_eip712 {
             encoded_data.extend_from_slice(&Self::keccak_hash(&data.name));
             encoded_data.extend_from_slice(data.signer.encode().as_slice());
             encoded_data.extend_from_slice(&Self::keccak_hash(&data.agreement_cid));
-            encoded_data.extend_from_slice(&Self::keccak_hash(&data.app));
             encoded_data.extend_from_slice(data.timestamp.as_slice());
             encoded_data.extend_from_slice(&Self::keccak_hash(&data.metadata));
 
@@ -388,7 +383,6 @@ pub mod daosign_eip712 {
             encoded_data.extend_from_slice(self.proof_of_agreement_typehash.as_slice());
             encoded_data.extend_from_slice(&Self::keccak_hash(&data.agreement_cid));
             encoded_data.extend_from_slice(&self.hash_strings(data.signature_cids));
-            encoded_data.extend_from_slice(&Self::keccak_hash(&data.app));
             encoded_data.extend_from_slice(data.timestamp.as_slice());
             encoded_data.extend_from_slice(&Self::keccak_hash(&data.metadata));
 
@@ -614,9 +608,9 @@ pub mod daosign_eip712 {
         fn init_typehashes(&mut self) -> () {
             self.eip712domain_typehash = Self::keccak_hash("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
             self.signer_typehash = Self::keccak_hash("Signer(address addr,string metadata)");
-            self.proof_of_authority_typehash = Self::keccak_hash("ProofOfAuthority(string name,address from,string agreementCID,Signer[] signers,string app,uint256 timestamp,string metadata)Signer(address addr,string metadata)");
-            self.proof_of_signature_typehash = Self::keccak_hash("ProofOfSignature(string name,address signer,string agreementCID,string app,uint256 timestamp,string metadata)");
-            self.proof_of_agreement_typehash = Self::keccak_hash("ProofOfAgreement(string agreementCID,string[] signatureCIDs,string app,uint256 timestamp,string metadata)");
+            self.proof_of_authority_typehash = Self::keccak_hash("ProofOfAuthority(string name,address from,string agreementCID,Signer[] signers,uint256 timestamp,string metadata)Signer(address addr,string metadata)");
+            self.proof_of_signature_typehash = Self::keccak_hash("ProofOfSignature(string name,address signer,string authorityCID,uint256 timestamp,string metadata)");
+            self.proof_of_agreement_typehash = Self::keccak_hash("ProofOfAgreement(string authorityCID,string[] signatureCIDs,uint256 timestamp,string metadata)");
         }
 
         /// # Helper function to initialize EIP-712, Signer, Proof-of-Authority, Proof-of-Signature, and
