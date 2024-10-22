@@ -47,7 +47,6 @@ pub mod daosign_app {
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
     pub struct SignedProofOfAgreement {
         message: ProofOfAgreement,
-        signature: Vec<u8>,
         proof_cid: String,
     }
 
@@ -482,7 +481,6 @@ pub mod daosign_app {
             let mut timestamp_arr: [u8; 32] = [0; 32];
             timestamp_arr[24..].copy_from_slice(&timestamp_bytes);
 
-            let signature = <[u8; 65]>::from_hex("4f43008200f6dea8f74ec205d874593885872158406c2ef0f71dbe2459ba9118667d10451069d5015fc005c88b2337240c8f02edf904e08b4abf723dc20998a91b").unwrap();
             let proof_cid = String::from("ProofOfAgreement proof cid                    ");
 
             instance.store_proof_of_agreement(SignedProofOfAgreement {
@@ -494,7 +492,6 @@ pub mod daosign_app {
                     timestamp: timestamp_arr,
                     metadata: String::from("proof metadata"),
                 },
-                signature: signature.to_vec(),
                 proof_cid: proof_cid.clone(),
             });
         }
@@ -750,7 +747,6 @@ pub mod daosign_app {
             let mut timestamp_arr: [u8; 32] = [0; 32];
             timestamp_arr[24..].copy_from_slice(&timestamp_bytes);
 
-            let signature = <[u8; 65]>::from_hex("4f43008200f6dea8f74ec205d874593885872158406c2ef0f71dbe2459ba9118667d10451069d5015fc005c88b2337240c8f02edf904e08b4abf723dc20998a91b").unwrap();
             let proof_cid = String::from("ProofOfAgreement proof cid                    ");
 
             let data = SignedProofOfAgreement {
@@ -762,15 +758,10 @@ pub mod daosign_app {
                     timestamp: timestamp_arr,
                     metadata: String::from("proof metadata"),
                 },
-                signature: signature.to_vec(),
                 proof_cid: proof_cid.clone(),
             };
             instance.store_proof_of_agreement(data.clone());
 
-            assert_eq!(
-                instance.poags.get(proof_cid.clone()).unwrap().signature,
-                signature
-            );
             assert_eq!(
                 instance.poags.get(proof_cid.clone()).unwrap().proof_cid,
                 proof_cid.clone()
@@ -956,12 +947,10 @@ pub mod daosign_app {
             let mut timestamp_arr: [u8; 32] = [0; 32];
             timestamp_arr[24..].copy_from_slice(&timestamp_bytes);
 
-            let signature = <[u8; 65]>::from_hex("4f43008200f6dea8f74ec205d874593885872158406c2ef0f71dbe2459ba9118667d10451069d5015fc005c88b2337240c8f02edf904e08b4abf723dc20998a91b").unwrap();
             let proof_cid = String::from("ProofOfAgreement proof cid                    ");
 
             let proof = instance.get_proof_of_agreement(proof_cid.clone());
 
-            assert_eq!(proof.signature, signature);
             assert_eq!(proof.proof_cid, proof_cid.clone());
 
             assert_eq!(

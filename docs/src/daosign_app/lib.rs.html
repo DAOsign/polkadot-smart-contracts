@@ -967,17 +967,6 @@
 <a href="#967" id="967">967</a>
 <a href="#968" id="968">968</a>
 <a href="#969" id="969">969</a>
-<a href="#970" id="970">970</a>
-<a href="#971" id="971">971</a>
-<a href="#972" id="972">972</a>
-<a href="#973" id="973">973</a>
-<a href="#974" id="974">974</a>
-<a href="#975" id="975">975</a>
-<a href="#976" id="976">976</a>
-<a href="#977" id="977">977</a>
-<a href="#978" id="978">978</a>
-<a href="#979" id="979">979</a>
-<a href="#980" id="980">980</a>
 </pre><pre class="rust"><code><span class="attr">#![cfg_attr(not(feature = <span class="string">&quot;std&quot;</span>), no_std, no_main)]
 
 </span><span class="doccomment">//! # DAOsign App Contract
@@ -1027,7 +1016,6 @@
     #[cfg_attr(feature = <span class="string">&quot;std&quot;</span>, derive(scale_info::TypeInfo, StorageLayout))]
     </span><span class="kw">pub struct </span>SignedProofOfAgreement {
         message: ProofOfAgreement,
-        signature: Vec&lt;u8&gt;,
         proof_cid: String,
     }
 
@@ -1462,7 +1450,6 @@
             <span class="kw">let </span><span class="kw-2">mut </span>timestamp_arr: [u8; <span class="number">32</span>] = [<span class="number">0</span>; <span class="number">32</span>];
             timestamp_arr[<span class="number">24</span>..].copy_from_slice(<span class="kw-2">&amp;</span>timestamp_bytes);
 
-            <span class="kw">let </span>signature = &lt;[u8; <span class="number">65</span>]&gt;::from_hex(<span class="string">&quot;4f43008200f6dea8f74ec205d874593885872158406c2ef0f71dbe2459ba9118667d10451069d5015fc005c88b2337240c8f02edf904e08b4abf723dc20998a91b&quot;</span>).unwrap();
             <span class="kw">let </span>proof_cid = String::from(<span class="string">&quot;ProofOfAgreement proof cid                    &quot;</span>);
 
             instance.store_proof_of_agreement(SignedProofOfAgreement {
@@ -1474,7 +1461,6 @@
                     timestamp: timestamp_arr,
                     metadata: String::from(<span class="string">&quot;proof metadata&quot;</span>),
                 },
-                signature: signature.to_vec(),
                 proof_cid: proof_cid.clone(),
             });
         }
@@ -1730,7 +1716,6 @@
             <span class="kw">let </span><span class="kw-2">mut </span>timestamp_arr: [u8; <span class="number">32</span>] = [<span class="number">0</span>; <span class="number">32</span>];
             timestamp_arr[<span class="number">24</span>..].copy_from_slice(<span class="kw-2">&amp;</span>timestamp_bytes);
 
-            <span class="kw">let </span>signature = &lt;[u8; <span class="number">65</span>]&gt;::from_hex(<span class="string">&quot;4f43008200f6dea8f74ec205d874593885872158406c2ef0f71dbe2459ba9118667d10451069d5015fc005c88b2337240c8f02edf904e08b4abf723dc20998a91b&quot;</span>).unwrap();
             <span class="kw">let </span>proof_cid = String::from(<span class="string">&quot;ProofOfAgreement proof cid                    &quot;</span>);
 
             <span class="kw">let </span>data = SignedProofOfAgreement {
@@ -1742,15 +1727,10 @@
                     timestamp: timestamp_arr,
                     metadata: String::from(<span class="string">&quot;proof metadata&quot;</span>),
                 },
-                signature: signature.to_vec(),
                 proof_cid: proof_cid.clone(),
             };
             instance.store_proof_of_agreement(data.clone());
 
-            <span class="macro">assert_eq!</span>(
-                instance.poags.get(proof_cid.clone()).unwrap().signature,
-                signature
-            );
             <span class="macro">assert_eq!</span>(
                 instance.poags.get(proof_cid.clone()).unwrap().proof_cid,
                 proof_cid.clone()
@@ -1936,12 +1916,10 @@
             <span class="kw">let </span><span class="kw-2">mut </span>timestamp_arr: [u8; <span class="number">32</span>] = [<span class="number">0</span>; <span class="number">32</span>];
             timestamp_arr[<span class="number">24</span>..].copy_from_slice(<span class="kw-2">&amp;</span>timestamp_bytes);
 
-            <span class="kw">let </span>signature = &lt;[u8; <span class="number">65</span>]&gt;::from_hex(<span class="string">&quot;4f43008200f6dea8f74ec205d874593885872158406c2ef0f71dbe2459ba9118667d10451069d5015fc005c88b2337240c8f02edf904e08b4abf723dc20998a91b&quot;</span>).unwrap();
             <span class="kw">let </span>proof_cid = String::from(<span class="string">&quot;ProofOfAgreement proof cid                    &quot;</span>);
 
             <span class="kw">let </span>proof = instance.get_proof_of_agreement(proof_cid.clone());
 
-            <span class="macro">assert_eq!</span>(proof.signature, signature);
             <span class="macro">assert_eq!</span>(proof.proof_cid, proof_cid.clone());
 
             <span class="macro">assert_eq!</span>(
