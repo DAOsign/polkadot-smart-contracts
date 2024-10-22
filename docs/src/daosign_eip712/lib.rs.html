@@ -1274,7 +1274,7 @@
     </span><span class="kw">pub struct </span>ProofOfSignature {
         <span class="kw">pub </span>name: String,
         <span class="kw">pub </span>signer: [u8; <span class="number">32</span>],
-        <span class="kw">pub </span>agreement_cid: String,
+        <span class="kw">pub </span>authority_cid: String,
         <span class="comment">// As Rust doesn&#39;t have u256 type as in Solidity, we&#39;re using [u8; 32] here
         </span><span class="kw">pub </span>timestamp: [u8; <span class="number">32</span>],
         <span class="kw">pub </span>metadata: String,
@@ -1287,7 +1287,7 @@
         derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
     )]
     </span><span class="kw">pub struct </span>ProofOfAgreement {
-        <span class="kw">pub </span>agreement_cid: String,
+        <span class="kw">pub </span>authority_cid: String,
         <span class="kw">pub </span>signature_cids: Vec&lt;String&gt;,
         <span class="comment">// As Rust doesn&#39;t have u256 type as in Solidity, we&#39;re using [u8; 32] here
         </span><span class="kw">pub </span>timestamp: [u8; <span class="number">32</span>],
@@ -1562,7 +1562,7 @@
             encoded_data.extend_from_slice(<span class="self">self</span>.proof_of_signature_typehash.as_slice());
             encoded_data.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">Self</span>::keccak_hash(<span class="kw-2">&amp;</span>data.name));
             encoded_data.extend_from_slice(data.signer.encode().as_slice());
-            encoded_data.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">Self</span>::keccak_hash(<span class="kw-2">&amp;</span>data.agreement_cid));
+            encoded_data.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">Self</span>::keccak_hash(<span class="kw-2">&amp;</span>data.authority_cid));
             encoded_data.extend_from_slice(data.timestamp.as_slice());
             encoded_data.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">Self</span>::keccak_hash(<span class="kw-2">&amp;</span>data.metadata));
 
@@ -1585,7 +1585,7 @@
             <span class="kw">let </span><span class="kw-2">mut </span>encoded_data = Vec::new();
 
             encoded_data.extend_from_slice(<span class="self">self</span>.proof_of_agreement_typehash.as_slice());
-            encoded_data.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">Self</span>::keccak_hash(<span class="kw-2">&amp;</span>data.agreement_cid));
+            encoded_data.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">Self</span>::keccak_hash(<span class="kw-2">&amp;</span>data.authority_cid));
             encoded_data.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.hash_strings(data.signature_cids));
             encoded_data.extend_from_slice(data.timestamp.as_slice());
             encoded_data.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">Self</span>::keccak_hash(<span class="kw-2">&amp;</span>data.metadata));

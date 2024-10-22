@@ -1296,13 +1296,13 @@
 
             <span class="kw">let </span>i: usize = <span class="self">self
                 </span>.poau_signers_idx
-                .get((<span class="kw-2">&amp;</span>data.message.agreement_cid, <span class="kw-2">&amp;</span>data.message.signer))
+                .get((<span class="kw-2">&amp;</span>data.message.authority_cid, <span class="kw-2">&amp;</span>data.message.signer))
                 .unwrap()
                 .try_into()
                 .unwrap();
             <span class="macro">assert!</span>(
                 <span class="self">self</span>.poaus
-                    .get(<span class="kw-2">&amp;</span>data.message.agreement_cid)
+                    .get(<span class="kw-2">&amp;</span>data.message.authority_cid)
                     .unwrap()
                     .message
                     .signers[i]
@@ -1329,7 +1329,7 @@
             <span class="macro">assert!</span>(data.proof_cid.len() == IPFS_CID_LENGTH, <span class="string">&quot;Invalid proof CID&quot;</span>);
             <span class="macro">assert!</span>(
                 <span class="self">self</span>.poaus
-                    .get(<span class="kw-2">&amp;</span>data.message.agreement_cid)
+                    .get(<span class="kw-2">&amp;</span>data.message.authority_cid)
                     .unwrap()
                     .message
                     .name
@@ -1338,7 +1338,7 @@
             </span>);
             <span class="macro">assert!</span>(
                 <span class="self">self</span>.poaus
-                    .get(<span class="kw-2">&amp;</span>data.message.agreement_cid)
+                    .get(<span class="kw-2">&amp;</span>data.message.authority_cid)
                     .unwrap()
                     .message
                     .signers
@@ -1351,7 +1351,7 @@
                 <span class="kw">let </span>idx: usize = <span class="self">self
                     </span>.poau_signers_idx
                     .get((
-                        <span class="kw-2">&amp;</span>data.message.agreement_cid,
+                        <span class="kw-2">&amp;</span>data.message.authority_cid,
                         <span class="kw-2">&amp;</span><span class="self">self</span>.posis.get(signature_cid).unwrap().message.signer,
                     ))
                     .unwrap()
@@ -1359,7 +1359,7 @@
                     .unwrap();
                 <span class="macro">assert!</span>(
                     <span class="self">self</span>.poaus
-                        .get(<span class="kw-2">&amp;</span>data.message.agreement_cid)
+                        .get(<span class="kw-2">&amp;</span>data.message.authority_cid)
                         .unwrap()
                         .message
                         .signers[idx]
@@ -1447,7 +1447,7 @@
                 message: ProofOfSignature {
                     name: String::from(<span class="string">&quot;Proof-of-Signature&quot;</span>),
                     signer: signer_arr,
-                    agreement_cid: String::from(<span class="string">&quot;ProofOfAuthority proof cid                    &quot;</span>),
+                    authority_cid: String::from(<span class="string">&quot;ProofOfAuthority proof cid                    &quot;</span>),
                     timestamp: timestamp_arr,
                     metadata: String::from(<span class="string">&quot;proof metadata&quot;</span>),
                 },
@@ -1467,7 +1467,7 @@
 
             instance.store_proof_of_agreement(SignedProofOfAgreement {
                 message: ProofOfAgreement {
-                    agreement_cid: String::from(<span class="string">&quot;ProofOfAuthority proof cid                    &quot;</span>),
+                    authority_cid: String::from(<span class="string">&quot;ProofOfAuthority proof cid                    &quot;</span>),
                     signature_cids: Vec::from([String::from(
                         <span class="string">&quot;ProofOfSignature proof cid                    &quot;</span>,
                     )]),
@@ -1637,7 +1637,7 @@
                 message: ProofOfSignature {
                     name: String::from(<span class="string">&quot;Proof-of-Signature&quot;</span>),
                     signer: signer_arr,
-                    agreement_cid: String::from(<span class="string">&quot;ProofOfAuthority proof cid                    &quot;</span>),
+                    authority_cid: String::from(<span class="string">&quot;ProofOfAuthority proof cid                    &quot;</span>),
                     timestamp: timestamp_arr,
                     metadata: String::from(<span class="string">&quot;proof metadata&quot;</span>),
                 },
@@ -1674,7 +1674,7 @@
                     .get(proof_cid.clone())
                     .unwrap()
                     .message
-                    .agreement_cid,
+                    .authority_cid,
                 String::from(<span class="string">&quot;ProofOfAuthority proof cid                    &quot;</span>)
             );
             <span class="macro">assert_eq!</span>(
@@ -1735,7 +1735,7 @@
 
             <span class="kw">let </span>data = SignedProofOfAgreement {
                 message: ProofOfAgreement {
-                    agreement_cid: String::from(<span class="string">&quot;ProofOfAuthority proof cid                    &quot;</span>),
+                    authority_cid: String::from(<span class="string">&quot;ProofOfAuthority proof cid                    &quot;</span>),
                     signature_cids: Vec::from([String::from(
                         <span class="string">&quot;ProofOfSignature proof cid                    &quot;</span>,
                     )]),
@@ -1762,7 +1762,7 @@
                     .get(proof_cid.clone())
                     .unwrap()
                     .message
-                    .agreement_cid,
+                    .authority_cid,
                 String::from(<span class="string">&quot;ProofOfAuthority proof cid                    &quot;</span>)
             );
             <span class="macro">assert_eq!</span>(
@@ -1900,7 +1900,7 @@
             <span class="macro">assert_eq!</span>(proof.message.name, String::from(<span class="string">&quot;Proof-of-Signature&quot;</span>));
             <span class="macro">assert_eq!</span>(proof.message.signer, signer_arr);
             <span class="macro">assert_eq!</span>(
-                proof.message.agreement_cid,
+                proof.message.authority_cid,
                 String::from(<span class="string">&quot;ProofOfAuthority proof cid                    &quot;</span>)
             );
             <span class="macro">assert_eq!</span>(proof.message.timestamp, timestamp_arr);
@@ -1945,7 +1945,7 @@
             <span class="macro">assert_eq!</span>(proof.proof_cid, proof_cid.clone());
 
             <span class="macro">assert_eq!</span>(
-                proof.message.agreement_cid,
+                proof.message.authority_cid,
                 String::from(<span class="string">&quot;ProofOfAuthority proof cid                    &quot;</span>)
             );
             <span class="macro">assert_eq!</span>(proof.message.signature_cids.len(), <span class="number">1</span>);

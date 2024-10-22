@@ -70,7 +70,7 @@ pub mod daosign_eip712 {
     pub struct ProofOfSignature {
         pub name: String,
         pub signer: [u8; 32],
-        pub agreement_cid: String,
+        pub authority_cid: String,
         // As Rust doesn't have u256 type as in Solidity, we're using [u8; 32] here
         pub timestamp: [u8; 32],
         pub metadata: String,
@@ -83,7 +83,7 @@ pub mod daosign_eip712 {
         derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
     )]
     pub struct ProofOfAgreement {
-        pub agreement_cid: String,
+        pub authority_cid: String,
         pub signature_cids: Vec<String>,
         // As Rust doesn't have u256 type as in Solidity, we're using [u8; 32] here
         pub timestamp: [u8; 32],
@@ -358,7 +358,7 @@ pub mod daosign_eip712 {
             encoded_data.extend_from_slice(self.proof_of_signature_typehash.as_slice());
             encoded_data.extend_from_slice(&Self::keccak_hash(&data.name));
             encoded_data.extend_from_slice(data.signer.encode().as_slice());
-            encoded_data.extend_from_slice(&Self::keccak_hash(&data.agreement_cid));
+            encoded_data.extend_from_slice(&Self::keccak_hash(&data.authority_cid));
             encoded_data.extend_from_slice(data.timestamp.as_slice());
             encoded_data.extend_from_slice(&Self::keccak_hash(&data.metadata));
 
@@ -381,7 +381,7 @@ pub mod daosign_eip712 {
             let mut encoded_data = Vec::new();
 
             encoded_data.extend_from_slice(self.proof_of_agreement_typehash.as_slice());
-            encoded_data.extend_from_slice(&Self::keccak_hash(&data.agreement_cid));
+            encoded_data.extend_from_slice(&Self::keccak_hash(&data.authority_cid));
             encoded_data.extend_from_slice(&self.hash_strings(data.signature_cids));
             encoded_data.extend_from_slice(data.timestamp.as_slice());
             encoded_data.extend_from_slice(&Self::keccak_hash(&data.metadata));

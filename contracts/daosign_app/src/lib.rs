@@ -316,13 +316,13 @@ pub mod daosign_app {
 
             let i: usize = self
                 .poau_signers_idx
-                .get((&data.message.agreement_cid, &data.message.signer))
+                .get((&data.message.authority_cid, &data.message.signer))
                 .unwrap()
                 .try_into()
                 .unwrap();
             assert!(
                 self.poaus
-                    .get(&data.message.agreement_cid)
+                    .get(&data.message.authority_cid)
                     .unwrap()
                     .message
                     .signers[i]
@@ -349,7 +349,7 @@ pub mod daosign_app {
             assert!(data.proof_cid.len() == IPFS_CID_LENGTH, "Invalid proof CID");
             assert!(
                 self.poaus
-                    .get(&data.message.agreement_cid)
+                    .get(&data.message.authority_cid)
                     .unwrap()
                     .message
                     .name
@@ -358,7 +358,7 @@ pub mod daosign_app {
             );
             assert!(
                 self.poaus
-                    .get(&data.message.agreement_cid)
+                    .get(&data.message.authority_cid)
                     .unwrap()
                     .message
                     .signers
@@ -371,7 +371,7 @@ pub mod daosign_app {
                 let idx: usize = self
                     .poau_signers_idx
                     .get((
-                        &data.message.agreement_cid,
+                        &data.message.authority_cid,
                         &self.posis.get(signature_cid).unwrap().message.signer,
                     ))
                     .unwrap()
@@ -379,7 +379,7 @@ pub mod daosign_app {
                     .unwrap();
                 assert!(
                     self.poaus
-                        .get(&data.message.agreement_cid)
+                        .get(&data.message.authority_cid)
                         .unwrap()
                         .message
                         .signers[idx]
@@ -467,7 +467,7 @@ pub mod daosign_app {
                 message: ProofOfSignature {
                     name: String::from("Proof-of-Signature"),
                     signer: signer_arr,
-                    agreement_cid: String::from("ProofOfAuthority proof cid                    "),
+                    authority_cid: String::from("ProofOfAuthority proof cid                    "),
                     timestamp: timestamp_arr,
                     metadata: String::from("proof metadata"),
                 },
@@ -487,7 +487,7 @@ pub mod daosign_app {
 
             instance.store_proof_of_agreement(SignedProofOfAgreement {
                 message: ProofOfAgreement {
-                    agreement_cid: String::from("ProofOfAuthority proof cid                    "),
+                    authority_cid: String::from("ProofOfAuthority proof cid                    "),
                     signature_cids: Vec::from([String::from(
                         "ProofOfSignature proof cid                    ",
                     )]),
@@ -657,7 +657,7 @@ pub mod daosign_app {
                 message: ProofOfSignature {
                     name: String::from("Proof-of-Signature"),
                     signer: signer_arr,
-                    agreement_cid: String::from("ProofOfAuthority proof cid                    "),
+                    authority_cid: String::from("ProofOfAuthority proof cid                    "),
                     timestamp: timestamp_arr,
                     metadata: String::from("proof metadata"),
                 },
@@ -694,7 +694,7 @@ pub mod daosign_app {
                     .get(proof_cid.clone())
                     .unwrap()
                     .message
-                    .agreement_cid,
+                    .authority_cid,
                 String::from("ProofOfAuthority proof cid                    ")
             );
             assert_eq!(
@@ -755,7 +755,7 @@ pub mod daosign_app {
 
             let data = SignedProofOfAgreement {
                 message: ProofOfAgreement {
-                    agreement_cid: String::from("ProofOfAuthority proof cid                    "),
+                    authority_cid: String::from("ProofOfAuthority proof cid                    "),
                     signature_cids: Vec::from([String::from(
                         "ProofOfSignature proof cid                    ",
                     )]),
@@ -782,7 +782,7 @@ pub mod daosign_app {
                     .get(proof_cid.clone())
                     .unwrap()
                     .message
-                    .agreement_cid,
+                    .authority_cid,
                 String::from("ProofOfAuthority proof cid                    ")
             );
             assert_eq!(
@@ -920,7 +920,7 @@ pub mod daosign_app {
             assert_eq!(proof.message.name, String::from("Proof-of-Signature"));
             assert_eq!(proof.message.signer, signer_arr);
             assert_eq!(
-                proof.message.agreement_cid,
+                proof.message.authority_cid,
                 String::from("ProofOfAuthority proof cid                    ")
             );
             assert_eq!(proof.message.timestamp, timestamp_arr);
@@ -965,7 +965,7 @@ pub mod daosign_app {
             assert_eq!(proof.proof_cid, proof_cid.clone());
 
             assert_eq!(
-                proof.message.agreement_cid,
+                proof.message.authority_cid,
                 String::from("ProofOfAuthority proof cid                    ")
             );
             assert_eq!(proof.message.signature_cids.len(), 1);
